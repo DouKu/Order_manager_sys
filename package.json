@@ -5,8 +5,8 @@
   "main": "server.js",
   "scripts": {
     "start": "nodemon app.js --exec babel-node",
-    "test": "NODE_ENV=unittest mocha --exit --compilers js:babel-register",
-    "wtest": "SET NODE_ENV=unittest&&mocha --exit --compilers js:babel-register"
+    "test": "NODE_ENV=unittest mocha --exit --require babel-register",
+    "wtest": "SET NODE_ENV=unittest&&mocha --exit --require babel-register"
   },
   "repository": {
     "type": "git",

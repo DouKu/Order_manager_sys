@@ -2,13 +2,13 @@
 import { request } from '../bootstrap.test';
 import assert from 'power-assert';
 
-describe('Controller: goods', () => {
+describe.skip('Controller: goods', () => {
   let user = null;
   before('login', async () => {
     user = await request
       .post('/api/v1/login')
       .send({
-        phoneNumber: '987654321',
+        phoneNumber: '123456789',
         password: '123456789',
         target: 1
       });

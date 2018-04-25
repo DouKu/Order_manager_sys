@@ -1,5 +1,5 @@
 import User from '../models/User';
-import base from '../service/base';
+import { signToken } from '../service/base';
 
 // 登录
 const login = async ctx => {
@@ -30,10 +30,10 @@ const login = async ctx => {
       ctx.throw(403, '您无权限登录该系统');
     }
   }
-  const token = base.signToken(user);
+  const token = signToken(user);
   ctx.body = {
     code: 200,
-    message: '登录成功!',
+    msg: '登录成功!',
     token: token
   };
 };
@@ -74,8 +74,9 @@ const register = async ctx => {
   await user.save();
 
   // 生成推荐人信息
-  // if (recommendUser) {
-  // }
+  if (recommendUser) {
+
+  }
 
   ctx.body = {
     code: 200,
