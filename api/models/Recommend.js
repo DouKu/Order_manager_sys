@@ -1,9 +1,20 @@
 import mongoose, { Schema } from 'mongoose';
-const ObjectId = Schema.Types.ObjectId;
 
 const RecommendSchema = new Schema({
-  fromUserId: { type: ObjectId, ref: 'User' }, // 推荐人id
-  toUserId: { type: ObjectId, ref: 'User' }, // 被推荐人id
+  fromUserId: { type: String, required: true }, // 被推荐人id
+  toUserId: { type: String, required: true }, // id
+  fromUser: {
+    nickname: { type: String }, // 昵称
+    realName: { type: String, required: true }, // 姓名
+    avatar: { type: String }, // 头像
+    managerId: { type: String } // 上级id
+  }, // 推荐人
+  toUser: {
+    nickname: { type: String }, // 昵称
+    realName: { type: String, required: true }, // 姓名
+    avatar: { type: String }, // 头像
+    managerId: { type: String } // 上级id
+  }, // 被推荐人
   createAt: { type: Date, default: Date.now() } // 创建时间
 }, {
   versionKey: false,

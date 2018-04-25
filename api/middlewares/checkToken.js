@@ -10,14 +10,13 @@ export default () => {
       if (token) {
         const user = await User.checkToken(token);
         if (user) {
-          ctx.state.userBaseMessage = {
-            user_name: user.user_name,
-            user_id: user.id,
+          ctx.state.userBase = {
+            id: user.id,
             nickname: user.nickname,
+            realName: user.realName,
             sign: user.sign,
             avatar: user.avatar,
-            level: user.level,
-            badge: user.badge
+            level: user.level
           };
           ctx.state.userMessage = user;
           await next();

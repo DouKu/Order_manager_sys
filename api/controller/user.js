@@ -1,5 +1,6 @@
 import User from '../models/User';
 import { signToken } from '../service/base';
+import Recommend from '../models/Recommend';
 
 // 登录
 const login = async ctx => {
@@ -75,7 +76,23 @@ const register = async ctx => {
 
   // 生成推荐人信息
   if (recommendUser) {
-
+    const newRec = new Recommend({
+      fromUserId: recommendUser.id,
+      toUserId: user._id,
+      fromUser: {
+        nickname: recommendUser.nickname,
+        realName: recommendUser.realName,
+        avatar: recommendUser.avatar,
+        managerId: recommendUser.managerId
+      },
+      toUser: {
+        nickname: user.nickname,
+        realName: user.realName,
+        avatar: user.avatar,
+        managerId: user.managerId
+      }
+    });
+    await newRec.save();
   }
 
   ctx.body = {

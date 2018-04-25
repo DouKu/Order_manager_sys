@@ -2,6 +2,7 @@
 import { request } from '../bootstrap.test';
 import assert from 'power-assert';
 import User from '../../api/models/User';
+import Recommend from '../../api/models/Recommend';
 
 describe('Controller: user', () => {
   it('Action: login', async () => {
@@ -30,8 +31,10 @@ describe('Controller: user', () => {
       })
       .expect(200);
     const newUser = await User.findOne({ realName: 'abc' });
+    const newRec = await Recommend.findOne({ fromUserId: manager.id });
     assert(newUser !== null);
     assert(result.body.code === 200);
+    assert(newRec.toUserId === newUser.id);
     await User.deleteOne({ realName: 'abc' });
   });
 });
