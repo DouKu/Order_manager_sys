@@ -4,6 +4,7 @@ import bcrypt from 'bcrypt';
 import nconf from 'nconf';
 const saltRound = 10;
 
+// 用户表
 const UserSchema = new Schema({
   phoneNumber: { type: String, required: true, unique: true }, // 登录名(电话)
   password: { type: String, required: true }, // 密码(加盐哈希)
@@ -64,7 +65,6 @@ UserSchema.methods.comparePassword = async function (password) {
 };
 
 UserSchema.statics.checkToken = async function (token) {
-  // const user = await this.findOne({ _id: token.id })
   const user = await this.findById(token.id);
   if (token.secret === user.appSecret) {
     return user;

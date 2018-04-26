@@ -1,3 +1,5 @@
+'use strict';
+
 import User from '../models/User';
 import { signToken } from '../service/base';
 import Recommend from '../models/Recommend';

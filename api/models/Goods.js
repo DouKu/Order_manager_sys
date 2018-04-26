@@ -1,5 +1,6 @@
 import mongoose, { Schema } from 'mongoose';
 
+// 商品信息表
 const GoodsSchema = new Schema({
   name: { type: String, required: true }, // 商品名
   price: { type: Number, required: true }, // 商品价格

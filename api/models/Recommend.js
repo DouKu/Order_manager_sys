@@ -1,5 +1,6 @@
 import mongoose, { Schema } from 'mongoose';
 
+// 推荐信息表
 const RecommendSchema = new Schema({
   fromUserId: { type: String, required: true }, // 被推荐人id
   toUserId: { type: String, required: true }, // id

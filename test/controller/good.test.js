@@ -2,7 +2,7 @@
 import { request } from '../bootstrap.test';
 import assert from 'power-assert';
 
-describe.skip('Controller: goods', () => {
+describe('Controller: goods', () => {
   let user = null;
   before('login', async () => {
     user = await request

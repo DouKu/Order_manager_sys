@@ -31,7 +31,9 @@ describe('Controller: user', () => {
       })
       .expect(200);
     const newUser = await User.findOne({ realName: 'abc' });
-    const newRec = await Recommend.findOne({ fromUserId: manager.id });
+    const newRec = await Recommend
+      .findOne({ fromUserId: manager.id })
+      .sort({ createAt: -1 });
     assert(newUser !== null);
     assert(result.body.code === 200);
     assert(newRec.toUserId === newUser.id);
