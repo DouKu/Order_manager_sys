@@ -1,8 +1,9 @@
 'use strict';
-
 import User from '../models/User';
-import { signToken } from '../service/base';
 import Recommend from '../models/Recommend';
+import Agent from '../models/Agent';
+import { signToken } from '../service/base';
+import _ from 'lodash';
 
 // 登录
 const login = async ctx => {
@@ -103,7 +104,26 @@ const register = async ctx => {
   };
 };
 
+// 个人详细信息
+const getUserInfo = async ctx => {
+  const agents = await Agent.find();
+  const manager = await User.findById(ctx.state.userMess.managerId);
+  const nowUser = ctx.state.userMess;
+  const result = _.omit(
+    nowUser,
+    ['password', 'managerId', 'appSecret']
+  );
+  const userAgent = _.filter(agents, ['level', result.level])[0];
+  result.agent = userAgent.des;
+  result.manager = manager.realName;
+  ctx.body = {
+    code: 200,
+    data: result
+  };
+};
+
 export {
   login,
-  register
+  register,
+  getUserInfo
 };

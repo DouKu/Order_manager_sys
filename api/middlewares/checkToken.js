@@ -10,15 +10,7 @@ export default () => {
       if (token) {
         const user = await User.checkToken(token);
         if (user) {
-          ctx.state.userBase = {
-            id: user.id,
-            nickname: user.nickname,
-            realName: user.realName,
-            sign: user.sign,
-            avatar: user.avatar,
-            level: user.level
-          };
-          ctx.state.userMessage = user;
+          ctx.state.userMess = user.toObject();
           await next();
         } else {
           ctx.throw(501, 'token信息异常');

@@ -22,10 +22,10 @@ describe('Controller: user', () => {
     const result = await request
       .post('/api/v1/register')
       .send({
-        phoneNumber: '987654321',
+        phoneNumber: '98765432',
         password: '123456789',
         realName: 'abc',
-        idCard: '441223199912122012',
+        idCard: '441223199912122013',
         managerId: manager.id,
         recommendId: manager.id
       })
@@ -38,5 +38,22 @@ describe('Controller: user', () => {
     assert(result.body.code === 200);
     assert(newRec.toUserId === newUser.id);
     await User.deleteOne({ realName: 'abc' });
+  });
+  it('Action: getUserInfo', async () => {
+    const login = await request
+      .post('/api/v1/login')
+      .send({
+        phoneNumber: '987654321',
+        password: '123456789',
+        target: 1
+      })
+      .expect(200);
+    assert(login.body.id !== null);
+    const result = await request
+      .get('/api/auth/user')
+      .set({ Authorization: `Bearer ${login.body.token}` })
+      .expect(200);
+
+    assert(result.body.data.manager === '管理员');
   });
 });

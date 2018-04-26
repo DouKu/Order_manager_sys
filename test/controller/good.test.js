@@ -17,7 +17,7 @@ describe('Controller: goods', () => {
   });
   it('Action: addGoods', async () => {
     const result = await request
-      .post('/api/auth/addGoods')
+      .post('/api/auth/goods')
       .send({
         name: 'lucky',
         price: 16,

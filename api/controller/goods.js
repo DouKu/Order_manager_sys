@@ -9,6 +9,10 @@ const addGoods = async ctx => {
     picture: 'array',
     des: 'string'
   });
+  // 校验用户权限
+  if (!ctx.state.userMess.isManager) {
+    ctx.throw(403, '权限不足');
+  }
   // 添加商品逻辑
   const body = ctx.request.body;
   const a = new Goods({

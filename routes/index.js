@@ -30,6 +30,7 @@ authRouter.use(checkToken());
 /** 路由编写 */
 require('./user')(router, authRouter, commonRouter);
 require('./goods')(router, authRouter, commonRouter);
+require('./recommend')(router, authRouter, commonRouter);
 
 /** 整合路由 */
 router.use(commonRouter.routes(), commonRouter.allowedMethods());

@@ -7,19 +7,23 @@ const RecommendSchema = new Schema({
   fromUser: {
     nickname: { type: String }, // 昵称
     realName: { type: String, required: true }, // 姓名
-    avatar: { type: String }, // 头像
-    managerId: { type: String } // 上级id
+    avatar: { type: String } // 头像
   }, // 推荐人
   toUser: {
     nickname: { type: String }, // 昵称
     realName: { type: String, required: true }, // 姓名
-    avatar: { type: String }, // 头像
-    managerId: { type: String } // 上级id
+    avatar: { type: String } // 头像
   }, // 被推荐人
   createAt: { type: Date, default: Date.now() } // 创建时间
 }, {
   versionKey: false,
   toJSON: {
+    transform: function (doc, ret) {
+      ret.id = ret._id;
+      delete ret._id;
+    }
+  },
+  toObject: {
     transform: function (doc, ret) {
       ret.id = ret._id;
       delete ret._id;

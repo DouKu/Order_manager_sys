@@ -13,6 +13,12 @@ const AgentSchema = new Schema({
       ret.id = ret._id;
       delete ret._id;
     }
+  },
+  toObject: {
+    transform: function (doc, ret) {
+      ret.id = ret._id;
+      delete ret._id;
+    }
   }
 });
 
