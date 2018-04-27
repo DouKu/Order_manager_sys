@@ -3,8 +3,10 @@ import { request } from '../bootstrap.test';
 import assert from 'power-assert';
 import User from '../../api/models/User';
 import Recommend from '../../api/models/Recommend';
+import { toObjectId } from '../../api/service/toObjectId';
 
 describe('Controller: user', () => {
+  const newMessage = Math.random().toString(36).substr(2);
   it('Action: login', async () => {
     const result = await request
       .post('/api/v1/login')
@@ -18,26 +20,26 @@ describe('Controller: user', () => {
     assert(result.body.code === 200);
   });
   it('Action: register', async () => {
+    const idCard = `${Date.now()}${newMessage}4432165`.slice(0, 18);
     const manager = await User.findOne({ realName: '管理员' });
     const result = await request
       .post('/api/v1/register')
       .send({
-        phoneNumber: '98765432',
-        password: '123456789',
-        realName: 'abc',
-        idCard: '441223199912122013',
+        phoneNumber: newMessage,
+        password: newMessage,
+        realName: newMessage,
+        idCard: idCard,
         managerId: manager.id,
         recommendId: manager.id
       })
       .expect(200);
-    const newUser = await User.findOne({ realName: 'abc' });
+    const newUser = await User.findOne({ realName: newMessage });
     const newRec = await Recommend
-      .findOne({ fromUserId: manager.id })
+      .findOne({ fromUser: toObjectId(manager.id) })
       .sort({ createAt: -1 });
     assert(newUser !== null);
     assert(result.body.code === 200);
-    assert(newRec.toUserId === newUser.id);
-    await User.deleteOne({ realName: 'abc' });
+    assert(newRec.toUser.toString() === newUser.id);
   });
   it('Action: getUserInfo', async () => {
     const login = await request

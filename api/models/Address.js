@@ -1,7 +1,8 @@
 import mongoose, { Schema } from 'mongoose';
+const ObjectId = Schema.Types.ObjectId;
 
 const AddressSchema = new Schema({
-  userId: { type: String, required: true }, // 用户id
+  userId: { type: ObjectId, ref: 'User' }, // 用户id
   address: { type: String, required: true }, // 详细地址
   receivePeople: { type: String, required: true }, // 收货人姓名
   postalCode: { type: String, required: true }, // 邮政编码

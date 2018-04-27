@@ -1,12 +1,14 @@
 'use strict';
 import Recommend from '../models/Recommend';
 import _ from 'lodash';
+import { toObjectId } from '../service/toObjectId';
 
 // 我的推荐
 const OwnRecommend = async ctx => {
   const nowUser = ctx.state.userMess;
   const rec = await Recommend
-    .find({ fromUserId: nowUser.id })
+    .find({ fromUser: toObjectId(nowUser.id) })
+    .populate('fromUser toUser')
     .sort({ createAt: -1 });
 
   const result = _.chain(rec)
@@ -34,18 +36,19 @@ const findRecommendsByUser = async ctx => {
   }, ctx.params);
   const fromUser = ctx.params.userId;
   const rec = await Recommend
-    .find({ fromUserId: fromUser })
+    .find({ fromUser: fromUser })
+    .populate('fromUser toUser')
     .sort({ createAt: -1 });
 
-  const count = await Recommend.find({ fromUserId: fromUser }).count();
+  const count = await Recommend.find({ fromUser: toObjectId(fromUser) }).count();
 
   const result = _.chain(rec)
     .map(o => {
       return {
-        fromUserId: o.fromUserId,
+        fromUserId: o.fromUser.id,
         fromUserName: o.fromUser.realName,
         fromUserAvatar: o.fromUser.avatar,
-        toUserId: o.toUserId,
+        toUserId: o.toUser.id,
         toUserName: o.toUser.realName,
         toUserAvatar: o.toUser.avatar,
         createAt: o.createAt
