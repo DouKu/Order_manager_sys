@@ -5,8 +5,8 @@ const AddressSchema = new Schema({
   userId: { type: ObjectId, ref: 'User' }, // 用户id
   address: { type: String, required: true }, // 详细地址
   receivePeople: { type: String, required: true }, // 收货人姓名
-  postalCode: { type: String, required: true }, // 邮政编码
-  phoneNumber: { type: String, required: true }, // 电话号码
+  postalCode: { type: String, required: true, default: '000000' }, // 邮政编码
+  receivePhone: { type: String, required: true }, // 电话号码
   createAt: { type: Date, default: Date.now() }, // 创建时间
   updateAt: { type: Date, default: Date.now() } // 更新时间
 }, {

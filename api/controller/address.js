@@ -15,19 +15,19 @@ const addAddress = async ctx => {
     address: 'string',
     receivePeople: 'string',
     postalCode: 'string',
-    phoneNumber: 'string'
+    receivePhone: 'string'
   });
   const body = ctx.request.body;
   const checkAddress = await Address.findOne({ address: body.address });
   if (checkAddress) {
-    ctx.throw(400, '改地址已存在请添加其它地址');
+    ctx.throw(400, '该地址已存在请添加其它地址');
   }
   const newAddress = new Address({
     userId: ctx.state.userMess.id,
     address: body.address,
     receivePeople: body.receivePeople,
     postalCode: body.postalCode,
-    phoneNumber: body.phoneNumber
+    receivePhone: body.receivePhone
   });
   await newAddress.save();
   ctx.body = {
@@ -52,7 +52,7 @@ const updateAddress = async ctx => {
     address: { type: 'string', required: false },
     receivePeople: { type: 'string', required: false },
     postalCode: { type: 'string', required: false },
-    phoneNumber: { type: 'string', required: false }
+    receivePhone: { type: 'string', required: false }
   });
   const addressId = ctx.params.addressId;
   const body = ctx.request.body;

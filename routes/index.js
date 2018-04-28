@@ -32,6 +32,7 @@ require('./user')(router, authRouter, commonRouter);
 require('./goods')(router, authRouter, commonRouter);
 require('./recommend')(router, authRouter, commonRouter);
 require('./address')(router, authRouter, commonRouter);
+require('./order')(router, authRouter, commonRouter);
 
 /** 整合路由 */
 router.use(commonRouter.routes(), commonRouter.allowedMethods());

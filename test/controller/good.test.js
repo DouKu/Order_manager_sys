@@ -22,7 +22,8 @@ describe('Controller: goods', () => {
         name: 'lucky',
         price: 16,
         picture: ['asdasdas'],
-        des: 'aaaaaaaaaaa'
+        des: 'aaaaaaaaaaa',
+        target: 5
       })
       .set({ Authorization: 'Bearer ' + user.body.token })
       .expect(200);

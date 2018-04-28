@@ -99,7 +99,7 @@ const getUserInfo = async ctx => {
   const nowUser = ctx.state.userMess;
   const result = _.omit(
     nowUser,
-    ['password', 'managerId', 'appSecret']
+    ['password', 'managerId', 'appSecret', 'isManager']
   );
   const userAgent = _.filter(agents, ['level', result.level])[0];
   result.agent = userAgent.des;

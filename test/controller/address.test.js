@@ -34,7 +34,7 @@ describe('Controller: address', () => {
         address: newAddress,
         receivePeople: '测试姓名',
         postalCode: '510631',
-        phoneNumber: '12365487798'
+        receivePhone: '12365487798'
       })
       .expect(200);
 
@@ -49,12 +49,12 @@ describe('Controller: address', () => {
         address: '测试地址',
         receivePeople: '随便写的',
         postalCode: '528456',
-        phoneNumber: '11111111111'
+        receivePhone: '11111111111'
       })
       .expect(200);
     newAddress = await Address.findById(newAddress.id);
     assert(result.body.code === 200);
-    assert(newAddress.phoneNumber === '11111111111');
+    assert(newAddress.receivePhone === '11111111111');
   });
   it('Action: deleteAddress', async () => {
     await request

@@ -34,12 +34,10 @@ describe('Controller: user', () => {
       })
       .expect(200);
     const newUser = await User.findOne({ realName: newMessage });
-    const newRec = await Recommend
-      .findOne({ fromUser: toObjectId(manager.id) })
-      .sort({ createAt: -1 });
+    const newRec = await Recommend.findOne({ toUser: toObjectId(newUser.id) });
     assert(newUser !== null);
     assert(result.body.code === 200);
-    assert(newRec.toUser.toString() === newUser.id);
+    assert(newRec.fromUser.toString() === manager.id);
   });
   it('Action: getUserInfo', async () => {
     const login = await request

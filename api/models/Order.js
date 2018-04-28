@@ -8,12 +8,21 @@ const OrderSchema = new Schema({
   goods: [{
     name: { type: String, required: true }, // 商品名
     price: { type: Number, required: true }, // 商品单价
-    pictures: { type: String }, // 图片url
+    picture: { type: String }, // 图片url
     num: { type: Number, required: true } // 商品数量
   }],
   sumPrice: { type: Number, required: true }, // 总价
-  state: { type: Number, default: 1 }, // 商品状态（1.已下单，2.已出货，3.交易确认）
-  trackingNumber: { type: String }, // 快递单号
+  /**
+   * 商品状态:
+   * 1：已下单，2.已接单，3.已拒绝
+   * 4.已出货/已发货
+   * 5.交易确认, 6.申请取消，7.已取消
+   */
+  state: { type: Number, required: true },
+  address: { type: String, required: true }, // 收货详细地址
+  receivePeople: { type: String, required: true }, // 收货人姓名
+  postalCode: { type: String, required: true }, // 邮政编码
+  receivePhone: { type: String, required: true }, // 收货人电话号码
   createAt: { type: Date, default: Date.now() }, // 创建时间
   updateAt: { type: Date, default: Date.now() } // 更新时间
 }, {

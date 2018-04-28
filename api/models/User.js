@@ -2,6 +2,7 @@ import mongoose, { Schema } from 'mongoose';
 import crypto from 'crypto';
 import bcrypt from 'bcrypt';
 import nconf from 'nconf';
+const ObjectId = Schema.Types.ObjectId;
 const saltRound = 10;
 
 // 用户表
@@ -20,7 +21,7 @@ const UserSchema = new Schema({
   level: { type: Number, required: true, default: 5 }, // 用户代理等级
   avatar: { type: String }, // 头像
   sign: { type: String }, // 个性签名
-  managerId: { type: String }, // 上级id
+  managerId: { type: ObjectId, ref: 'User' }, // 上级id
   isManager: { type: Boolean, default: false }, // 是否为管理员
   appSecret: { type: String, default: GetHmac() }, // token用
   createAt: { type: Date, default: Date.now() }, // 创建时间

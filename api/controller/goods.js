@@ -7,7 +7,8 @@ const addGoods = async ctx => {
     name: 'string',
     price: 'number',
     picture: 'array',
-    des: 'string'
+    des: 'string',
+    target: 'int'
   });
   // 校验用户权限
   if (!ctx.state.userMess.isManager) {
@@ -19,7 +20,8 @@ const addGoods = async ctx => {
     name: body.name,
     price: body.price,
     picture: body.picture,
-    des: body.des
+    des: body.des,
+    target: body.target
   });
   await a.save();
   ctx.body = {
