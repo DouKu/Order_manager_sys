@@ -19,8 +19,8 @@ async function init () {
     for (let agent of agentData) {
       const newAgent = new Agent(agent);
       await newAgent.save();
-      return;
     }
+    return;
   } catch (error) {
     console.log(error.message);
   }

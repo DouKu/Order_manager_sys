@@ -20,7 +20,6 @@
   "homepage": "https://github.com/QiIL/order-manage-sys#readme",
   "dependencies": {
     "babel-runtime": "^6.26.0",
-    "bcrypt": "^1.0.3",
     "jsonwebtoken": "^8.1.0",
     "kcors": "^2.2.1",
     "koa": "^2.4.1",
