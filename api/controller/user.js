@@ -103,7 +103,9 @@ const getUserInfo = async ctx => {
   );
   const userAgent = _.filter(agents, ['level', result.level])[0];
   result.agent = userAgent.des;
-  result.manager = manager.realName;
+  if (manager) {
+    result.manager = manager.realName;
+  }
   ctx.body = {
     code: 200,
     data: result
