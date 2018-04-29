@@ -49,15 +49,15 @@ const register = async ctx => {
     password: 'string',
     realName: 'string',
     idCard: 'string',
-    managerId: 'string',
+    managerId: { type: 'string', required: false },
     recommendId: { type: 'string', required: false }
   });
   const body = ctx.request.body;
   // 检查上级
-  const manager = await User.findById(body.managerId);
-  if (!manager) {
-    ctx.throw(400, '上级填写错误');
-  }
+  // const manager = await User.findById(body.managerId);
+  // if (!manager) {
+  //   ctx.throw(400, '上级填写错误');
+  // }
   // 检查推荐人
   let recommendUser = null;
   if (body.recommendId) {

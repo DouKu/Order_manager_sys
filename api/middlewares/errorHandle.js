@@ -5,9 +5,8 @@ export default () => {
     try {
       await next();
     } catch (error) {
-      console.log(error);
       ctx.body = {
-        code: 500,
+        code: error.status || 500,
         error: error.message
       };
     }

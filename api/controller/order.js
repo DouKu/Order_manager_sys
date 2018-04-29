@@ -1,8 +1,8 @@
 'use strict';
 import moment from 'moment';
+import _ from 'lodash';
 import Order from '../models/Order';
 import { toObjectId } from '../service/toObjectId';
-import { monDura } from '../service/countDate';
 
 // 查看我的下单(需要时间范围,分页)
 const checkMyOrder = async ctx => {
@@ -14,12 +14,12 @@ const checkMyOrder = async ctx => {
   const body = ctx.request.body;
   // 时间范围默认为一个月
   body.endDate = body.endDate || Date.now();
-  body.beginDate = body.beginDate || moment().subtract(monDura).format();
+  body.beginDate = body.beginDate || moment(body.endDate).subtract(1, 'months').format();
+  const conditions = _.omit(body, ['beginDate', 'endDate']);
+  conditions.fromUser = toObjectId(ctx.state.userMess.id);
   const result = await Order
-    .find({
-      fromUser: toObjectId(ctx.state.userMess.id),
-      createAt: { $gte: body.beginDate, $lte: body.endDate }
-    })
+    .find(conditions)
+    .where('createAt').gte(body.beginDate).lte(body.endDate)
     .populate('toUser', 'realName avatar level')
     .sort({ createAt: -1 });
 
@@ -39,12 +39,12 @@ const checkMyBill = async ctx => {
   const body = ctx.request.body;
   // 时间范围默认为一个月
   body.endDate = body.endDate || Date.now();
-  body.beginDate = body.beginDate || moment().subtract(monDura).format();
+  body.beginDate = body.beginDate || moment().subtract(1, 'months').format();
+  const conditions = _.omit(body, ['beginDate', 'endDate']);
+  conditions.toUser = toObjectId(ctx.state.userMess.id);
   const result = await Order
-    .find({
-      toUser: toObjectId(ctx.state.userMess.id),
-      createAt: { $gte: body.beginDate, $lte: body.endDate }
-    })
+    .find(conditions)
+    .where('createAt').gte(body.beginDate).lte(body.endDate)
     .populate('fromUser', 'realName avatar level')
     .sort({ createAt: -1 });
 
@@ -105,11 +105,15 @@ const markOrder = async ctx => {
     trackingNumber: { type: 'string', required: false }
   });
   const body = ctx.request.body;
-  if (body.state === 4 && body.trackingNumber === null) {
+  if (body.state === 4 && !_.has(body, 'trackingNumber')) {
     ctx.throw(400, '需要填写快递单号才能标记发货噢！');
   }
   const orderId = ctx.params.orderId;
-  const orderMessage = await Order.findOneAndUpdate({ _id: orderId }, body);
+  const orderMessage = await Order.findOneAndUpdate(
+    { _id: orderId },
+    body,
+    { new: true }
+  );
   ctx.body = {
     code: 200,
     data: orderMessage

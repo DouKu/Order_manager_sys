@@ -8,7 +8,7 @@ const saltRound = 10;
 // 用户表
 const UserSchema = new Schema({
   phoneNumber: { type: String, required: true, unique: true }, // 登录名(电话)
-  password: { type: String, required: true }, // 密码(加盐哈希)
+  password: { type: String }, // 密码(加盐哈希)
   nickname: { type: String }, // 昵称
   realName: { type: String, required: true }, // 真实名称
   idCard: {

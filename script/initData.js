@@ -18,7 +18,7 @@ import Address from '../api/models/Address';
 
 // init mongoose
 mongoose.Promise = global.Promise;
-mongoose.connect('mongodb://127.0.0.1:27017/Order_manager_test', {
+mongoose.connect('mongodb://172.18.204.180:27017/Order_manager_dev', {
   promiseLibrary: global.Promise
 });
 mongoose.connection.dropDatabase();

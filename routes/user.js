@@ -1,4 +1,8 @@
-import { login, register, getUserInfo } from '../api/controller/user';
+import {
+  login,
+  register,
+  getUserInfo
+} from '../api/controller/user';
 
 module.exports = (router, authRouter, commonRouter) => {
   // 登录

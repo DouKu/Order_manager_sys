@@ -19,6 +19,7 @@ const OrderSchema = new Schema({
    * 5.交易确认, 6.申请取消，7.已取消
    */
   state: { type: Number, required: true },
+  trackingNumber: { type: String }, // 快递单号
   address: { type: String, required: true }, // 收货详细地址
   receivePeople: { type: String, required: true }, // 收货人姓名
   postalCode: { type: String, required: true }, // 邮政编码
