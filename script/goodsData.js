@@ -9,9 +9,8 @@ export default [
     'createAt': Date.now(),
     'updateAt': Date.now(),
     'name': 'test',
-    'price': 16,
-    'des': 'aaaaaaaaaaa',
-    'target': 2
+    'price': 0,
+    'des': 'aaaaaaaaaaa'
   }, {
     '_id': toObjectId('5ae156cf25293d10531de4e1'),
     'pictures': [
@@ -20,10 +19,9 @@ export default [
     ],
     'createAt': Date.now(),
     'updateAt': Date.now(),
-    'name': 'test',
-    'price': 26,
-    'des': 'aaaaaaaaaaa',
-    'target': 3
+    'name': 'test1',
+    'price': 0,
+    'des': 'aaaaaaaaaaa'
   }, {
     '_id': toObjectId('5ae156cf25293d10531de4e2'),
     'pictures': [
@@ -32,9 +30,8 @@ export default [
     ],
     'createAt': Date.now(),
     'updateAt': Date.now(),
-    'name': 'test',
-    'price': 36,
-    'des': 'aaaaaaaaaaa',
-    'target': 4
+    'name': 'test2',
+    'price': 0,
+    'des': 'aaaaaaaaaaa'
   }
 ];
