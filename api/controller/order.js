@@ -105,6 +105,7 @@ const markOrder = async ctx => {
     trackingNumber: { type: 'string', required: false }
   });
   const body = ctx.request.body;
+
   if (body.state === 4 && !_.has(body, 'trackingNumber')) {
     ctx.throw(400, '需要填写快递单号才能标记发货噢！');
   }

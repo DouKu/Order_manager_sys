@@ -61,13 +61,13 @@ describe('Controller: Order', () => {
     assert(result.body.data.length < orderData.length);
   });
   it('Action: addOrder', async () => {
-    const goods = await Goods.find({ name: 'test' });
+    const goods = await Goods.find();
     const address = await Address.findOne({});
     const goodDeel = _.chain(goods)
       .map(o => {
         return {
           name: o.name,
-          price: o.price,
+          price: Math.ceil(Math.random() * 100),
           picture: o.pictures[0] || 'no picture',
           num: 2
         };
