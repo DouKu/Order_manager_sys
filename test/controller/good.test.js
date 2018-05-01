@@ -3,8 +3,6 @@ import { request } from '../bootstrap.test';
 import assert from 'power-assert';
 import _ from 'lodash';
 import Goods from '../../api/models/Goods';
-import GoodsPrice from '../../api/models/GoodsPrice';
-import { toObjectId } from '../../api/service/toObjectId';
 
 describe('Controller: goods', () => {
   let user = null;
@@ -83,11 +81,14 @@ describe('Controller: goods', () => {
 
     assert(result.body.code === 200);
   });
-  it('Action: updatedPrice', async () => {
+  it('Action: updatedMess', async () => {
     let luckyGood = await Goods.findOne({ name: 'lucky' });
-    await request
-      .put('/api/auth/goods/price/' + luckyGood.id)
+    const result = await request
+      .put('/api/auth/goods/' + luckyGood.id)
       .send({
+        name: 'luuuuu',
+        des: 'bbbbbbbbb',
+        pictures: ['aaaaaa', 'bbbbbbb', 'cccccccc'],
         strategies: [
           {
             agent: 1,
@@ -113,37 +114,10 @@ describe('Controller: goods', () => {
       .set({ Authorization: 'Bearer ' + user.body.token })
       .expect(200);
 
-    luckyGood = await GoodsPrice.findOne({ goods: toObjectId(luckyGood.id) });
-    assert(luckyGood.strategies.length === 6);
-    assert(luckyGood.strategies[0].price === 50);
-  });
-  it('Action: updatedMess', async () => {
-    let luckyGood = await Goods.findOne({ name: 'lucky' });
-    const result = await request
-      .put('/api/auth/goods/' + luckyGood.id)
-      .send({
-        name: 'luuuuu',
-        des: 'bbbbbbbbb'
-      })
-      .set({ Authorization: 'Bearer ' + user.body.token })
-      .expect(200);
-
     assert(result.body.code === 200);
     luckyGood = await Goods.findById(luckyGood.id);
     assert(luckyGood.name === 'luuuuu');
     assert(luckyGood.pictures.length > 0);
-
-    await request
-      .put('/api/auth/goods/' + luckyGood.id)
-      .send({
-        des: 'cccccc',
-        pictures: ['aaaaaa', 'bbbbbbb', 'cccccccc']
-      })
-      .set({ Authorization: 'Bearer ' + user.body.token })
-      .expect(200);
-
-    luckyGood = await Goods.findById(luckyGood.id);
-    assert(luckyGood.des === 'cccccc');
     assert(luckyGood.pictures.length === 3);
   });
   it('Action: deleteGoods', async () => {

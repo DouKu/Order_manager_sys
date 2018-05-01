@@ -1,8 +1,6 @@
 'use strict';
 import Goods from '../models/Goods';
-import GoodsPrice from '../models/GoodsPrice';
 import _ from 'lodash';
-import { toObjectId } from '../service/toObjectId';
 
 const addGoods = async ctx => {
   // 校验用户权限
@@ -32,14 +30,11 @@ const addGoods = async ctx => {
   const newGoods = new Goods({
     name: body.name,
     pictures: body.pictures,
-    des: body.des
-  });
-  const newPrice = new GoodsPrice({
-    goods: newGoods._id,
+    des: body.des,
     strategies: body.strategies
   });
+
   await newGoods.save();
-  await newPrice.save();
 
   ctx.body = {
     code: 200,
@@ -49,13 +44,13 @@ const addGoods = async ctx => {
 
 // web端获取商品列表
 const getGoods = async ctx => {
-  let res = await GoodsPrice.find().populate('goods');
+  let res = await Goods.find();
   res = _.chain(res)
     .map(o => {
       return {
-        name: o.goods.name,
-        pictures: o.goods.pictures,
-        des: o.goods.des,
+        name: o.name,
+        pictures: o.pictures,
+        des: o.des,
         price: _.filter(o.strategies, { agent: ctx.state.userMess.level })[0].price
       };
     })
@@ -69,14 +64,14 @@ const getGoods = async ctx => {
 
 // 后台管理获取商品列表
 const getAllGoods = async ctx => {
-  let res = await GoodsPrice.find().populate('goods');
+  let res = await Goods.find();
   res = _.chain(res)
     .map(o => {
       return {
-        id: o.goods.id,
-        name: o.goods.name,
-        pictures: o.goods.pictures,
-        des: o.goods.des,
+        id: o.id,
+        name: o.name,
+        pictures: o.pictures,
+        des: o.des,
         strategies: o.strategies
       };
     })
@@ -94,34 +89,9 @@ const deleteGoods = async ctx => {
   };
   const goodsId = ctx.params.goodsId;
   await Goods.deleteOne({ _id: goodsId });
-  await GoodsPrice.deleteOne({ goods: toObjectId(goodsId) });
   ctx.body = {
     code: 200,
     msg: '删除商品成功！'
-  };
-};
-
-// 更新价格
-const updatedPrice = async ctx => {
-  if (!ctx.state.userMess.isManager) {
-    ctx.throw(403, '权限不足');
-  };
-  ctx.verifyParams({
-    strategies: {
-      type: 'array',
-      itemType: 'object',
-      rule: {
-        agent: 'int',
-        price: 'number'
-      }
-    }
-  });
-  const goodsId = ctx.params.goodsId;
-  const strategies = ctx.request.body;
-  await GoodsPrice.updateOne({ goods: toObjectId(goodsId) }, strategies);
-  ctx.body = {
-    code: 200,
-    msg: '修改价格成功'
   };
 };
 
@@ -131,12 +101,19 @@ const updatedMess = async ctx => {
     ctx.throw(403, '权限不足');
   };
   ctx.verifyParams({
-    name: { type: 'string', required: false },
-    des: { type: 'string', required: false },
+    name: 'string',
+    des: 'string',
     pictures: {
       type: 'array',
-      itemType: 'string',
-      required: false
+      itemType: 'string'
+    },
+    strategies: {
+      type: 'array',
+      itemType: 'object',
+      rule: {
+        agent: 'int',
+        price: 'number'
+      }
     }
   });
   const body = ctx.request.body;
@@ -158,6 +135,5 @@ export {
   getGoods,
   getAllGoods,
   deleteGoods,
-  updatedPrice,
   updatedMess
 };

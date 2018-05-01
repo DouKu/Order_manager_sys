@@ -6,7 +6,6 @@ import recommendData from '../../script/recommendData';
 import goodsData from '../../script/goodsData';
 import addressData from '../../script/addressData';
 import orderData from '../../script/orderData';
-import goodsPriceData from '../../script/goodsPriceData';
 
 // import models
 import Agent from '../../api/models/Agent';
@@ -15,7 +14,6 @@ import Recommend from '../../api/models/Recommend';
 import Goods from '../../api/models/Goods';
 import Address from '../../api/models/Address';
 import Order from '../../api/models/Order';
-import GoodsPrice from '../../api/models/GoodsPrice';
 
 describe('initDb', () => {
   mongoose.connection.dropDatabase();
@@ -43,10 +41,6 @@ describe('initDb', () => {
     for (let order of orderData) {
       const newOrder = new Order(order);
       await newOrder.save();
-    }
-    for (let goodsPrice of goodsPriceData) {
-      const newGoodsPrice = new GoodsPrice(goodsPrice);
-      await newGoodsPrice.save();
     }
   });
 });

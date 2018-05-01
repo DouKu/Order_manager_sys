@@ -64,9 +64,32 @@ const updateAddress = async ctx => {
   };
 };
 
+// 更改默认地址
+const changeDefault = async ctx => {
+  const addressId = ctx.params.addressId;
+  const address = await Address.findById(addressId);
+  if (address.userId.toString() !== ctx.state.userMess.id.toString()) {
+    ctx.throw(400, '兄弟别瞎搞噢');
+  }
+  if (address.isDefault) {
+    ctx.body = {
+      code: 200,
+      msg: '默认地址修改成功'
+    };
+  } else {
+    await Address.updateOne({ isDefault: true }, { isDefault: false });
+    await Address.findByIdAndUpdate(addressId, { isDefault: true });
+    ctx.body = {
+      code: 200,
+      msg: '默认地址修改成功'
+    };
+  }
+};
+
 export {
   getOwnAddress,
   addAddress,
   deleteAddress,
-  updateAddress
+  updateAddress,
+  changeDefault
 };

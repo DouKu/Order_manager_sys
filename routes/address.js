@@ -2,7 +2,8 @@ import {
   getOwnAddress,
   addAddress,
   deleteAddress,
-  updateAddress
+  updateAddress,
+  changeDefault
 } from '../api/controller/address';
 
 module.exports = (router, authRouter, commonRouter) => {
@@ -14,4 +15,6 @@ module.exports = (router, authRouter, commonRouter) => {
   authRouter.put('/address/:addressId', updateAddress);
   // 删除收货地址
   authRouter.delete('/address/:addressId', deleteAddress);
+  // 更改默认地址
+  authRouter.put('/address/default/:addressId', changeDefault);
 };

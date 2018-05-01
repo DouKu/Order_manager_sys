@@ -2,6 +2,7 @@
 import { request } from '../bootstrap.test';
 import assert from 'power-assert';
 import Address from '../../api/models/Address';
+import { toObjectId } from '../../api/service/toObjectId';
 
 describe('Controller: address', () => {
   let user = null;
@@ -55,6 +56,29 @@ describe('Controller: address', () => {
     newAddress = await Address.findById(newAddress.id);
     assert(result.body.code === 200);
     assert(newAddress.receivePhone === '11111111111');
+  });
+  it('Action: changeDefault', async () => {
+    const falseAddress = await Address.findOne({
+      userId: toObjectId('5ae0583e88c08266d47c4009'),
+      isDefault: false
+    });
+    const defaultAddress = await Address.findOne({
+      userId: toObjectId('5ae0583e88c08266d47c4009'),
+      isDefault: true
+    });
+    await request
+      .put(`/api/auth/address/default/${falseAddress.id}`)
+      .set({ Authorization: 'Bearer ' + user.body.token })
+      .expect(200);
+
+    const changeAddress = await Address.find({
+      userId: toObjectId('5ae0583e88c08266d47c4009'),
+      isDefault: true
+    });
+
+    assert(changeAddress.id !== defaultAddress.id);
+    assert(changeAddress.length === 1);
+    assert(changeAddress[0].isDefault === true);
   });
   it('Action: deleteAddress', async () => {
     await request
