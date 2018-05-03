@@ -1,3 +1,4 @@
+'use strict';
 import {
   getOwnAddress,
   addAddress,
@@ -6,7 +7,7 @@ import {
   changeDefault
 } from '../api/controller/address';
 
-module.exports = (router, authRouter, commonRouter) => {
+module.exports = (router, authRouter, commonRouter, managerRouter) => {
   // 查看收货地址
   authRouter.get('/address', getOwnAddress);
   // 添加收货地址

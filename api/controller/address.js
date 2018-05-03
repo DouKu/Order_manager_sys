@@ -77,7 +77,13 @@ const changeDefault = async ctx => {
       msg: '默认地址修改成功'
     };
   } else {
-    await Address.updateOne({ isDefault: true }, { isDefault: false });
+    await Address.updateOne(
+      {
+        userId: ctx.state.userMess.id,
+        isDefault: true
+      },
+      { isDefault: false }
+    );
     await Address.findByIdAndUpdate(addressId, { isDefault: true });
     ctx.body = {
       code: 200,

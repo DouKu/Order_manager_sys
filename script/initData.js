@@ -8,6 +8,7 @@ import userData from './userData';
 import recommendData from './recommendData';
 import goodsData from './goodsData';
 import addressData from './addressData';
+import ConfigsData from './ConfigsData';
 
 // import models
 import Agent from '../api/models/Agent';
@@ -15,6 +16,7 @@ import User from '../api/models/User';
 import Recommend from '../api/models/Recommend';
 import Goods from '../api/models/Goods';
 import Address from '../api/models/Address';
+import Configs from '../api/models/Configs';
 
 // init mongoose
 mongoose.Promise = global.Promise;
@@ -43,6 +45,10 @@ async function initDb () {
   for (let address of addressData) {
     const newAddress = new Address(address);
     await newAddress.save();
+  }
+  for (let config of ConfigsData) {
+    const newConfig = new Configs(config);
+    await newConfig.save();
   }
 }
 

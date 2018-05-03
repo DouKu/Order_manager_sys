@@ -24,6 +24,8 @@ const UserSchema = new Schema({
   managerId: { type: ObjectId, ref: 'User' }, // 上级id
   isManager: { type: Boolean, default: false }, // 是否为管理员
   appSecret: { type: String, default: GetHmac() }, // token用
+  isLock: { type: Boolean, default: false }, // 是否封号
+  isActive: { type: Boolean, default: false }, // 是否激活
   createAt: { type: Date, default: Date.now() }, // 创建时间
   expiredAt: { type: Date }, // 过期时间
   updateAt: { type: Date, default: Date.now() } // 更新时间

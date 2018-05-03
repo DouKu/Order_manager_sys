@@ -10,7 +10,7 @@ describe('Controller: goods', () => {
     user = await request
       .post('/api/v1/login')
       .send({
-        phoneNumber: '123456789',
+        phoneNumber: '987654321',
         password: '123456789',
         target: 1
       });
@@ -19,7 +19,7 @@ describe('Controller: goods', () => {
   });
   it('Action: addGoods', async () => {
     const result = await request
-      .post('/api/auth/goods')
+      .post('/api/mana/goods')
       .send({
         name: 'lucky',
         pictures: ['asdasdas'],
@@ -55,27 +55,27 @@ describe('Controller: goods', () => {
     const user2 = await request
       .post('/api/v1/login')
       .send({
-        phoneNumber: '987654321',
+        phoneNumber: '123456789',
         password: '123456789',
         target: 1
       });
     let result = await request
       .get('/api/auth/goods')
-      .set({ Authorization: 'Bearer ' + user.body.token })
+      .set({ Authorization: 'Bearer ' + user2.body.token })
       .expect(200);
 
     assert(result.body.code === 200);
     const smallPrice = _.filter(result.body.data, { name: 'test' })[0].price;
     result = await request
       .get('/api/auth/goods')
-      .set({ Authorization: 'Bearer ' + user2.body.token })
+      .set({ Authorization: 'Bearer ' + user.body.token })
       .expect(200);
     const biggerPrice = _.filter(result.body.data, { name: 'test' })[0].price;
     assert(biggerPrice > smallPrice);
   });
   it('Action: getAllGoods', async () => {
     let result = await request
-      .get('/api/auth/goods/all')
+      .get('/api/mana/goods/all')
       .set({ Authorization: 'Bearer ' + user.body.token })
       .expect(200);
 
@@ -84,7 +84,7 @@ describe('Controller: goods', () => {
   it('Action: updatedMess', async () => {
     let luckyGood = await Goods.findOne({ name: 'lucky' });
     const result = await request
-      .put('/api/auth/goods/' + luckyGood.id)
+      .put('/api/mana/goods/' + luckyGood.id)
       .send({
         name: 'luuuuu',
         des: 'bbbbbbbbb',
@@ -120,9 +120,17 @@ describe('Controller: goods', () => {
     assert(luckyGood.pictures.length > 0);
     assert(luckyGood.pictures.length === 3);
   });
+  it('Action: checkProfit', async () => {
+    const result = await request
+      .get('/api/auth/goods/profit')
+      .set({ Authorization: 'Bearer ' + user.body.token })
+      .expect(200);
+
+    assert(result.body.code === 200);
+  });
   it('Action: deleteGoods', async () => {
     await request
-      .post('/api/auth/goods')
+      .post('/api/mana/goods')
       .send({
         name: 'lucky2',
         pictures: ['asdasdas'],
@@ -154,7 +162,7 @@ describe('Controller: goods', () => {
 
     const luckyGood = await Goods.findOne({ name: 'lucky2' });
     const result = await request
-      .delete('/api/auth/goods/' + luckyGood.id)
+      .delete('/api/mana/goods/' + luckyGood.id)
       .set({ Authorization: 'Bearer ' + user.body.token })
       .expect(200);
 

@@ -3,10 +3,6 @@ import Goods from '../models/Goods';
 import _ from 'lodash';
 
 const addGoods = async ctx => {
-  // 校验用户权限
-  if (!ctx.state.userMess.isManager) {
-    ctx.throw(403, '权限不足');
-  }
   // 验证
   ctx.verifyParams({
     name: 'string',
@@ -84,9 +80,6 @@ const getAllGoods = async ctx => {
 
 // 删除商品
 const deleteGoods = async ctx => {
-  if (!ctx.state.userMess.isManager) {
-    ctx.throw(403, '权限不足');
-  };
   const goodsId = ctx.params.goodsId;
   await Goods.deleteOne({ _id: goodsId });
   ctx.body = {
@@ -97,9 +90,6 @@ const deleteGoods = async ctx => {
 
 // 更新商品信息
 const updatedMess = async ctx => {
-  if (!ctx.state.userMess.isManager) {
-    ctx.throw(403, '权限不足');
-  };
   ctx.verifyParams({
     name: 'string',
     des: 'string',
@@ -130,10 +120,45 @@ const updatedMess = async ctx => {
   };
 };
 
+// 查看不同货物的差价利润
+const checkProfit = async ctx => {
+  const goods = await Goods.find();
+  const userLevel = ctx.state.userMess.level;
+  const result = _.chain(goods)
+    .map(o => {
+      // 该用户的售价
+      const userPrice = _.filter(o.strategies,
+        { agent: ctx.state.userMess.level }
+      )[0].price;
+      const otherAgent = _.filter(o.strategies, o => {
+        return o.agent > userLevel;
+      });
+      const profit = _.map(otherAgent, o => {
+        return {
+          agent: o.agent,
+          profit: o.price - userPrice
+        };
+      });
+      return {
+        name: o.name,
+        picture: o.pictures[0],
+        des: o.des,
+        profit
+      };
+    })
+    .value();
+
+  ctx.body = {
+    code: 200,
+    data: result
+  };
+};
+
 export {
   addGoods,
   getGoods,
   getAllGoods,
   deleteGoods,
-  updatedMess
+  updatedMess,
+  checkProfit
 };

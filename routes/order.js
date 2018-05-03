@@ -1,6 +1,7 @@
+'use strict';
 import { addOrder, markOrder, checkMyBill, checkMyOrder } from '../api/controller/order';
 
-module.exports = (router, authRouter, commonRouter) => {
+module.exports = (router, authRouter, commonRouter, managerRouter) => {
   // 生成订单
   authRouter.post('/order', addOrder);
   // 修改订单状态

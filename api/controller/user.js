@@ -4,27 +4,27 @@ import Recommend from '../models/Recommend';
 import Agent from '../models/Agent';
 import { signToken } from '../service/base';
 import _ from 'lodash';
+import moment from 'moment';
 
 // 登录
 const login = async ctx => {
   ctx.verifyParams({
     phoneNumber: 'string',
     password: { type: 'string', required: false },
-    sms: { type: 'string', required: false },
     target: { type: 'int', required: true }
   });
   const body = ctx.request.body;
   const user = await User.findOne({ phoneNumber: body.phoneNumber });
   if (!user) {
     ctx.throw(423, '用户不存在');
+  } else if (user.isLock) {
+    ctx.throw(400, '您的账号已过期/以被封号请联系管理员');
   }
   if (body.password) {
     const isMatch = await user.comparePassword(ctx.request.body.password);
     if (!isMatch) {
       ctx.throw(423, '用户名或密码错误！');
     }
-  } else if (body.smsCheck) {
-    ctx.throw(423, '短信错误');
   } else {
     ctx.throw(400, '登录表单错误');
   }
@@ -53,12 +53,6 @@ const register = async ctx => {
     recommendId: { type: 'string', required: false }
   });
   const body = ctx.request.body;
-  // 检查上级
-  // const manager = await User.findById(body.managerId);
-  // if (!manager) {
-  //   ctx.throw(400, '上级填写错误');
-  // }
-  // 检查推荐人
   let recommendUser = null;
   if (body.recommendId) {
     recommendUser = await User.findById(body.recommendId);
@@ -99,7 +93,7 @@ const getUserInfo = async ctx => {
   const nowUser = ctx.state.userMess;
   const result = _.omit(
     nowUser,
-    ['password', 'managerId', 'appSecret', 'isManager']
+    ['password', 'managerId', 'appSecret', 'isManager', 'isLock']
   );
   const userAgent = _.filter(agents, ['level', result.level])[0];
   result.agent = userAgent.des;
@@ -112,8 +106,69 @@ const getUserInfo = async ctx => {
   };
 };
 
+// 封号/(解封)
+const lockUser = async ctx => {
+  const userId = ctx.params.userId;
+  ctx.verifyParams({
+    isLock: 'boolean'
+  });
+  const body = ctx.request.body;
+  await User.findByIdAndUpdate(userId, body);
+  ctx.body = {
+    code: 200,
+    msg: body.isLock ? '封号成功' : '解封成功'
+  };
+};
+
+// 用户列表(分页)
+const listUser = async ctx => {
+  ctx.verifyParams({
+    page: { type: 'int', min: 1 },
+    limit: 'int',
+    conditions: {
+      type: 'object',
+      required: false,
+      rule: {
+        beginDate: { type: 'datetime', required: false },
+        endDate: { type: 'datetime', required: false },
+        level: { type: 'int', required: false },
+        userId: { type: 'string', required: false },
+        realName: { type: 'stirng', required: false }
+      }
+    },
+    sort: {
+      type: 'object',
+      required: false,
+      rule: {
+        createAt: [-1, 1],
+        level: [-1, 1]
+      }
+    }
+  });
+  const body = ctx.request.body;
+  const endDate = body.conditions.endDate || Date.now();
+  const beginDate = body.conditions.beginDate || moment('1971-01-01').format();
+  const skip = (body.page - 1) * body.limit;
+  const conditions = _.omit(body.conditions, ['beginDate', 'endDate']); ;
+  const sort = Object.assign({
+    createAt: -1,
+    level: 1
+  }, body.sort);
+  const data = await User.find(conditions)
+    .where('createAt').gte(beginDate).lte(endDate)
+    .sort(sort)
+    .skip(skip)
+    .limit(body.limit);
+  ctx.body = {
+    code: 200,
+    data
+  };
+};
+
 export {
   login,
   register,
-  getUserInfo
+  getUserInfo,
+  lockUser,
+  listUser
 };

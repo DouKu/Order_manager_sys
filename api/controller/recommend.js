@@ -18,6 +18,7 @@ const OwnRecommend = async ctx => {
         fromUserAvatar: o.fromUser.avatar,
         toUserName: o.toUser.realName,
         toUserAvatar: o.toUser.avatar,
+        toUserLevel: o.toUser.level,
         createAt: o.createAt
       };
     })
