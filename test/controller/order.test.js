@@ -120,4 +120,62 @@ describe('Controller: Order', () => {
 
     assert(result.body.data.state === 2);
   });
+  it('Action: listOrder', async () => {
+    // 条件查询
+    let result = await request
+      .post('/api/mana/order/list')
+      .set({ Authorization: 'Bearer ' + user.body.token })
+      .send({
+        page: 1,
+        limit: 20,
+        conditions: {
+          state: 8
+        },
+        sort: {}
+      });
+
+    assert(result.body.data[0].state === 8);
+
+    result = await request
+      .post('/api/mana/order/list')
+      .set({ Authorization: 'Bearer ' + user.body.token })
+      .send({
+        page: 1,
+        limit: 20,
+        conditions: {
+          beginDate: moment('2018-05-02').format('YYYY-MM-DD hh:mm:ss')
+        },
+        sort: {}
+      });
+
+    assert(result.body.data.length === 2);
+
+    result = await request
+      .post('/api/mana/order/list')
+      .set({ Authorization: 'Bearer ' + user.body.token })
+      .send({
+        page: 1,
+        limit: 20,
+        conditions: {
+          beginDate: moment('2018-05-02').format('YYYY-MM-DD hh:mm:ss'),
+          endDate: moment().add(1, 'days').format('YYYY-MM-DD hh:mm:ss')
+        },
+        sort: {
+          createAt: 1
+        }
+      })
+      .expect(200);
+
+    const fontDate = new Date(result.body.data[0].createAt);
+    const backDate = new Date(result.body.data[1].createAt);
+    assert(fontDate < backDate);
+  });
+  it('Action: orderDetail', async () => {
+    const result = await request
+      .get(`/api/mana/order/5ae56c3e59551115b3d3a177`)
+      .set({ Authorization: 'Bearer ' + user.body.token })
+      .expect(200);
+
+    assert(result.body.code === 200);
+  });
 });

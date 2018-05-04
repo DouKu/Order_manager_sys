@@ -49,7 +49,6 @@ const register = async ctx => {
     password: 'string',
     realName: 'string',
     idCard: 'string',
-    managerId: { type: 'string', required: false },
     recommendId: { type: 'string', required: false }
   });
   const body = ctx.request.body;
@@ -66,8 +65,7 @@ const register = async ctx => {
     phoneNumber: body.phoneNumber,
     password: body.password,
     realName: body.realName,
-    idCard: body.idCard,
-    managerId: body.managerId
+    idCard: body.idCard
   });
   await user.save();
 
@@ -127,21 +125,19 @@ const listUser = async ctx => {
     limit: 'int',
     conditions: {
       type: 'object',
-      required: false,
       rule: {
         beginDate: { type: 'datetime', required: false },
         endDate: { type: 'datetime', required: false },
         level: { type: 'int', required: false },
-        userId: { type: 'string', required: false },
-        realName: { type: 'stirng', required: false }
+        _id: { type: 'string', required: false },
+        realName: { type: 'string', required: false }
       }
     },
     sort: {
       type: 'object',
-      required: false,
       rule: {
-        createAt: [-1, 1],
-        level: [-1, 1]
+        createAt: { type: 'enum', values: [-1, 1], required: false },
+        level: { type: 'enum', values: [-1, 1], required: false }
       }
     }
   });

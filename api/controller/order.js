@@ -128,20 +128,16 @@ const listOrder = async ctx => {
     limit: 'int',
     conditions: {
       type: 'object',
-      required: false,
       rule: {
         beginDate: { type: 'datetime', required: false },
         endDate: { type: 'datetime', required: false },
-        state: { type: 'int', required: false },
-        fromUser: { type: 'string', required: false },
-        toUser: { type: 'stirng', required: false }
+        state: { type: 'int', required: false }
       }
     },
     sort: {
       type: 'object',
-      required: false,
       rule: {
-        createAt: [-1, 1]
+        createAt: { type: 'enum', values: [-1, 1], required: false }
       }
     }
   });
@@ -153,11 +149,42 @@ const listOrder = async ctx => {
   const sort = Object.assign({
     createAt: -1
   }, body.sort);
-  const data = await Order.find(conditions)
+  let data = await Order.find(conditions)
     .where('createAt').gte(beginDate).lte(endDate)
+    .populate('fromUser', 'realName level')
+    .populate('toUser', 'realName level')
     .sort(sort)
     .skip(skip)
     .limit(body.limit);
+
+  data = _.chain(data)
+    .map(o => {
+      return {
+        id: o.id,
+        createAt: o.createAt,
+        fromUserName: o.fromUser.realName,
+        fromUserLevel: o.fromUser.level,
+        fromUserId: o.fromUser.id,
+        toUserName: o.toUser.realName,
+        toUserLevel: o.toUser.level,
+        toUserId: o.toUser.id,
+        goods: o.goods,
+        state: o.state,
+        sumPrice: o.sumPrice
+      };
+    })
+    .value();
+  ctx.body = {
+    code: 200,
+    data
+  };
+};
+
+const orderDetail = async ctx => {
+  const orderId = ctx.params.orderId;
+  const data = await Order.findById(orderId)
+    .populate('fromUser', 'phoneNumber realName level')
+    .populate('toUser', 'phoneNumber realName level');
   ctx.body = {
     code: 200,
     data
@@ -169,5 +196,6 @@ export {
   checkMyBill,
   addOrder,
   markOrder,
-  listOrder
+  listOrder,
+  orderDetail
 };

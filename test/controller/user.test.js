@@ -1,6 +1,7 @@
 'use strict';
 import { request } from '../bootstrap.test';
 import assert from 'power-assert';
+import moment from 'moment';
 import User from '../../api/models/User';
 import Recommend from '../../api/models/Recommend';
 import { toObjectId } from '../../api/service/toObjectId';
@@ -68,5 +69,41 @@ describe('Controller: user', () => {
 
     const lockUser = await User.findById('5ae0583e88c08266d47c4014');
     assert(lockUser.isLock === true);
+  });
+  it('Action: listUser', async () => {
+    let result = await request
+      .post('/api/mana/user/list')
+      .set({ Authorization: `Bearer ${user.body.token}` })
+      .send({
+        page: 1,
+        limit: 20,
+        conditions: {},
+        sort: {
+          level: -1
+        }
+      })
+      .expect(200);
+
+    assert(result.body.data.length === 7);
+    assert(result.body.data[0].level > result.body.data[1].level);
+
+    result = await request
+      .post('/api/mana/user/list')
+      .set({ Authorization: 'Bearer ' + user.body.token })
+      .send({
+        page: 1,
+        limit: 20,
+        conditions: {
+          level: 6,
+          realName: '测试黄金代理',
+          _id: '5ae0583e88c08266d47c4014'
+        },
+        sort: {
+          createAt: 1
+        }
+      })
+      .expect(200);
+
+    assert(result.body.data[0].level === 6);
   });
 });
