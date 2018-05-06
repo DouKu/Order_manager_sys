@@ -43,6 +43,8 @@ require('./address')(router, authRouter, commonRouter, managerRouter);
 require('./order')(router, authRouter, commonRouter, managerRouter);
 require('./qiniu')(router, authRouter, commonRouter, managerRouter);
 require('./configs')(router, authRouter, commonRouter, managerRouter);
+require('./public')(router, authRouter, commonRouter, managerRouter);
+
 /** 整合路由 */
 router.use(commonRouter.routes(), commonRouter.allowedMethods());
 router.use(authRouter.routes(), authRouter.allowedMethods());

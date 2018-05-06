@@ -39,7 +39,7 @@ describe('Controller: address', () => {
       })
       .expect(200);
 
-    assert(result.body.code === 201);
+    assert(result.body.code === 200);
   });
   it('Action: updateAddress', async () => {
     newAddress = await Address.findOne({ address: newAddress });

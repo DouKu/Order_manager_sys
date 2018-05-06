@@ -10,7 +10,7 @@ describe('Controller: goods', () => {
     user = await request
       .post('/api/v1/login')
       .send({
-        phoneNumber: '987654321',
+        phoneNumber: '123456789',
         password: '123456789',
         target: 1
       });
@@ -55,20 +55,20 @@ describe('Controller: goods', () => {
     const user2 = await request
       .post('/api/v1/login')
       .send({
-        phoneNumber: '123456789',
+        phoneNumber: '987654321',
         password: '123456789',
         target: 1
       });
     let result = await request
       .get('/api/auth/goods')
-      .set({ Authorization: 'Bearer ' + user2.body.token })
+      .set({ Authorization: 'Bearer ' + user.body.token })
       .expect(200);
 
     assert(result.body.code === 200);
     const smallPrice = _.filter(result.body.data, { name: 'test' })[0].price;
     result = await request
       .get('/api/auth/goods')
-      .set({ Authorization: 'Bearer ' + user.body.token })
+      .set({ Authorization: 'Bearer ' + user2.body.token })
       .expect(200);
     const biggerPrice = _.filter(result.body.data, { name: 'test' })[0].price;
     assert(biggerPrice > smallPrice);

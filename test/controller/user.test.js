@@ -1,7 +1,6 @@
 'use strict';
 import { request } from '../bootstrap.test';
 import assert from 'power-assert';
-import moment from 'moment';
 import User from '../../api/models/User';
 import Recommend from '../../api/models/Recommend';
 import { toObjectId } from '../../api/service/toObjectId';
@@ -13,7 +12,7 @@ describe('Controller: user', () => {
     user = await request
       .post('/api/v1/login')
       .send({
-        phoneNumber: '987654321',
+        phoneNumber: '123456789',
         password: '123456789',
         target: 1
       })

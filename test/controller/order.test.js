@@ -15,7 +15,7 @@ describe('Controller: Order', () => {
     user = await request
       .post('/api/v1/login')
       .send({
-        phoneNumber: '987654321',
+        phoneNumber: '123456789',
         password: '123456789',
         target: 1
       });
@@ -23,9 +23,17 @@ describe('Controller: Order', () => {
     assert(user !== null);
   });
   it('Action: checkMyOrder', async () => {
+    let user2 = await request
+      .post('/api/v1/login')
+      .send({
+        phoneNumber: '987654321',
+        password: '123456789',
+        target: 1
+      });
+
     let result = await request
       .post('/api/auth/order/checkOrder')
-      .set({ Authorization: 'Bearer ' + user.body.token })
+      .set({ Authorization: 'Bearer ' + user2.body.token })
       .expect(200);
 
     assert(result.body.data.length > 0);
@@ -34,7 +42,7 @@ describe('Controller: Order', () => {
     const endDate = moment('2018-03-30').format('YYYY-MM-DD HH:mm:ss');
     result = await request
       .post('/api/auth/order/checkOrder')
-      .set({ Authorization: 'Bearer ' + user.body.token })
+      .set({ Authorization: 'Bearer ' + user2.body.token })
       .send({
         endDate,
         state: 8
@@ -61,6 +69,14 @@ describe('Controller: Order', () => {
     assert(result.body.data.length < orderData.length);
   });
   it('Action: addOrder', async () => {
+    let user2 = await request
+      .post('/api/v1/login')
+      .send({
+        phoneNumber: '987654321',
+        password: '123456789',
+        target: 1
+      });
+
     const goods = await Goods.find();
     const address = await Address.findOne({});
     const goodDeel = _.chain(goods)
@@ -76,7 +92,7 @@ describe('Controller: Order', () => {
 
     const result = await request
       .post('/api/auth/order')
-      .set({ Authorization: 'Bearer ' + user.body.token })
+      .set({ Authorization: 'Bearer ' + user2.body.token })
       .send({
         goods: goodDeel,
         address: address.address,

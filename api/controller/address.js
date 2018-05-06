@@ -31,7 +31,7 @@ const addAddress = async ctx => {
   });
   await newAddress.save();
   ctx.body = {
-    code: 201,
+    code: 200,
     msg: '成功添加一个新的收货地址！'
   };
 };
