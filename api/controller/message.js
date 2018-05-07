@@ -4,6 +4,7 @@ import UserMessage from '../models/UserMessage';
 import _ from 'lodash';
 import { toObjectId } from '../service/toObjectId';
 
+// 获取未读通知
 const getUnReadMess = async ctx => {
   const unReadMess = await UserMessage
     .findOne({ userId: ctx.state.userMess.id })
@@ -27,14 +28,39 @@ const getUnReadMess = async ctx => {
 
   ctx.body = {
     code: 200,
-    data
+    data,
+    count: data.length
   };
 };
 
+// 获取用户有关的通知
 const getAllMess = async ctx => {
-  const data = await Message.find({ userId: ctx.state.userMess.id })
+  ctx.verifyParams({
+    page: { type: 'int', min: 1 },
+    limit: 'int'
+  });
+  const page = ctx.request.body.page;
+  const limit = ctx.request.body.limit;
+  let data = await Message.find(
+    { $or: [{ toUser: ctx.state.userMess.id }, { type: 3 }] }
+  )
     .populate('fromUser', 'realName')
-    .sort({ createAt: -1 });
+    .sort({ createAt: -1 })
+    .skip((page - 1) * limit)
+    .limit(limit);
+
+  data = _.chain(data)
+    .map(o => {
+      return {
+        createAt: o.createAt,
+        type: o.type,
+        fromUser: o.fromUser.realName,
+        title: o.id,
+        message: o.message,
+        id: o.id
+      };
+    })
+    .value();
 
   ctx.body = {
     code: 200,
@@ -42,21 +68,48 @@ const getAllMess = async ctx => {
   };
 };
 
+// 读通知
 const readMess = async ctx => {
   const messId = ctx.params.messId;
-  const data = await UserMessage.findOneAndUpdate(
+  await UserMessage.findOneAndUpdate(
     { userId: ctx.state.userMess.id },
     { $pull: { messages: toObjectId(messId) } },
     { new: true }
   );
   ctx.body = {
     code: 200,
+    msg: '标记成功！'
+  };
+};
+
+// 通知详情
+const messDetail = async ctx => {
+  const messId = ctx.params.messId;
+  let data = await Message.findById(messId).populate('fromUser', 'realName');
+  data = data.toObject();
+  data.fromUser = data.fromUser.realName;
+  ctx.body = {
+    code: 200,
     data
+  };
+};
+
+// 标记全部已读
+const readAll = async ctx => {
+  await UserMessage.findOneAndUpdate(
+    { userId: ctx.state.userMess.id },
+    { messages: [] }
+  );
+  ctx.body = {
+    code: 200,
+    msg: '全部消息标为已读！'
   };
 };
 
 export {
   getUnReadMess,
   getAllMess,
-  readMess
+  readMess,
+  messDetail,
+  readAll
 };

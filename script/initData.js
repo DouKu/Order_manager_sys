@@ -9,6 +9,8 @@ import recommendData from './recommendData';
 import goodsData from './goodsData';
 import addressData from './addressData';
 import ConfigsData from './ConfigsData';
+import messageData from './messageData';
+import userMessData from './userMessData';
 
 // import models
 import Agent from '../api/models/Agent';
@@ -17,6 +19,8 @@ import Recommend from '../api/models/Recommend';
 import Goods from '../api/models/Goods';
 import Address from '../api/models/Address';
 import Configs from '../api/models/Configs';
+import Message from '../api/models/Message';
+import UserMessage from '../api/models/UserMessage';
 
 // init mongoose
 mongoose.Promise = global.Promise;
@@ -49,6 +53,14 @@ async function initDb () {
   for (let config of ConfigsData) {
     const newConfig = new Configs(config);
     await newConfig.save();
+  }
+  for (let message of messageData) {
+    const newMessage = new Message(message);
+    await newMessage.save();
+  }
+  for (let userMess of userMessData) {
+    const newUserMess = new UserMessage(userMess);
+    await newUserMess.save();
   }
 }
 

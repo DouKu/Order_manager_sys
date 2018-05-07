@@ -3,6 +3,8 @@ import moment from 'moment';
 import _ from 'lodash';
 import Order from '../models/Order';
 import { toObjectId } from '../service/toObjectId';
+import { addMessage } from '../service/message';
+import { orderIm } from '../service/order';
 
 // 查看我的下单(需要时间范围,分页)
 const checkMyOrder = async ctx => {
@@ -92,6 +94,15 @@ const addOrder = async ctx => {
     receivePhone: body.receivePhone
   });
   await newOrder.save();
+  // 添加消息
+  const message = {
+    type: 1,
+    fromUser: ctx.state.userMess.id,
+    toUser: ctx.state.userMess.managerId,
+    title: '新订单！',
+    message: `用户“${ctx.state.userMess.realName}”向您提交了一个新订单。`
+  };
+  await addMessage(message);
   ctx.body = {
     code: 200,
     msg: '下单成功！'
@@ -101,7 +112,7 @@ const addOrder = async ctx => {
 // 修改订单状态
 const markOrder = async ctx => {
   ctx.verifyParams({
-    state: [1, 2, 3, 4, 5, 6, 7, 8],
+    state: [2, 3, 4, 5, 6, 7, 8],
     trackingNumber: { type: 'string', required: false }
   });
   const body = ctx.request.body;
@@ -115,6 +126,8 @@ const markOrder = async ctx => {
     body,
     { new: true }
   );
+  const Im = orderIm(ctx.state.userMess, body.state, orderMessage);
+  await addMessage(Im);
   ctx.body = {
     code: 200,
     data: orderMessage
@@ -180,6 +193,7 @@ const listOrder = async ctx => {
   };
 };
 
+// 订单详情
 const orderDetail = async ctx => {
   const orderId = ctx.params.orderId;
   const data = await Order.findById(orderId)

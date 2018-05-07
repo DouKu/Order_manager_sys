@@ -7,6 +7,8 @@ import Goods from '../../api/models/Goods';
 import orderData from '../../script/orderData';
 import _ from 'lodash';
 import Address from '../../api/models/Address';
+import UserMess from '../../api/models/UserMessage';
+import { toObjectId } from '../../api/service/toObjectId';
 
 describe('Controller: Order', () => {
   let user = null;
@@ -90,6 +92,12 @@ describe('Controller: Order', () => {
       })
       .value();
 
+    // 计算下单前im数量
+    let beforeMess = await UserMess.findOne(
+      { userId: toObjectId('5ae0583e88c08266d47c4009') }
+    );
+    beforeMess = beforeMess.messages.length;
+
     const result = await request
       .post('/api/auth/order')
       .set({ Authorization: 'Bearer ' + user2.body.token })
@@ -103,8 +111,14 @@ describe('Controller: Order', () => {
       .expect(200);
 
     const newOrder = await Order.findOne().sort({ createAt: -1 });
+    // 计算下单后im数量
+    let afterMess = await UserMess.findOne(
+      { userId: toObjectId('5ae0583e88c08266d47c4009') }
+    );
+    afterMess = afterMess.messages.length;
     assert(result.body.code === 200);
     assert(newOrder.address === address.address);
+    assert(afterMess > beforeMess);
   });
   it('Action: markOrder', async () => {
     let result = await request
