@@ -2,9 +2,12 @@
 import User from '../models/User';
 import Recommend from '../models/Recommend';
 import Agent from '../models/Agent';
+import UserMessage from '../models/UserMessage';
+import Config from '../models/Configs';
 import { signToken } from '../service/base';
 import _ from 'lodash';
 import moment from 'moment';
+import { toObjectId } from '../service/toObjectId';
 
 // 登录
 const login = async ctx => {
@@ -18,7 +21,9 @@ const login = async ctx => {
   if (!user) {
     ctx.throw(423, '用户不存在');
   } else if (user.isLock) {
-    ctx.throw(400, '您的账号已过期/以被封号请联系管理员');
+    ctx.throw(400, '您的以被封号请联系管理员');
+  } else if (user.expiredAt < Date.now()) {
+    ctx.throw(400, '您的账号已过期请联系管理员');
   }
   if (body.password) {
     const isMatch = await user.comparePassword(ctx.request.body.password);
@@ -60,14 +65,26 @@ const register = async ctx => {
     }
   }
 
+  // 获取过期时间配置
+  const sysConfig = await Config.findOne({});
+
   // 生成用户信息
   const user = new User({
     phoneNumber: body.phoneNumber,
     password: body.password,
     realName: body.realName,
-    idCard: body.idCard
+    idCard: body.idCard,
+    expiredAt: moment().add(sysConfig.expiredMonths, 'months').format()
   });
   await user.save();
+
+  // 生成用户消息表
+  const userMessage = new UserMessage({
+    userId: user._id,
+    messages: []
+  });
+
+  await userMessage.save();
 
   // 生成推荐人信息
   if (recommendUser) {
@@ -91,7 +108,7 @@ const getUserInfo = async ctx => {
   const nowUser = ctx.state.userMess;
   const result = _.omit(
     nowUser,
-    ['password', 'managerId', 'appSecret', 'isManager', 'isLock']
+    ['password', 'managerId', 'appSecret', 'isManager', 'isLock', 'isActive']
   );
   const userAgent = _.filter(agents, ['level', result.level])[0];
   result.agent = userAgent.des;
@@ -101,6 +118,23 @@ const getUserInfo = async ctx => {
   ctx.body = {
     code: 200,
     data: result
+  };
+};
+
+// 根据id获取下属详细信息
+const getBubordinate = async ctx => {
+  const userId = ctx.params.userId;
+  let data = await User.find({ managerId: toObjectId(userId) });
+  data = _.chain(data)
+    .map(o => {
+      _.omit(o,
+        ['password', 'managerId', 'appSecret', 'isManager', 'isLock', 'isActive']
+      );
+    })
+    .value();
+  ctx.body = {
+    code: 200,
+    data
   };
 };
 
@@ -165,6 +199,7 @@ export {
   login,
   register,
   getUserInfo,
+  getBubordinate,
   lockUser,
   listUser
 };

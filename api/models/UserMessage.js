@@ -1,10 +1,10 @@
 'use strict';
 import mongoose, { Schema } from 'mongoose';
+const ObjectId = Schema.Types.ObjectId;
 
-const PublicSchema = new Schema({
-  des: { type: String, required: true }, // 描述
-  Link: { type: String, required: true }, // 网盘连接
-  pass: { type: String, required: true } // 网盘密码
+const UserMessageSchema = new Schema({
+  userId: { type: ObjectId, ref: 'User' }, // 用户id
+  messages: [{ type: ObjectId, ref: 'Message' }]// 消息id
 }, {
   versionKey: false,
   toJSON: {
@@ -21,4 +21,4 @@ const PublicSchema = new Schema({
   }
 });
 
-export default mongoose.model('Public', PublicSchema);
+export default mongoose.model('UserMessage', UserMessageSchema);

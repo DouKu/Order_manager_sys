@@ -44,6 +44,7 @@ const getGoods = async ctx => {
   res = _.chain(res)
     .map(o => {
       return {
+        id: o.id,
         name: o.name,
         pictures: o.pictures,
         des: o.des,

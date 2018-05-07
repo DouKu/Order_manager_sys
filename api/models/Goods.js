@@ -1,3 +1,4 @@
+'use strict';
 import mongoose, { Schema } from 'mongoose';
 
 // 商品信息表

@@ -7,6 +7,8 @@ import goodsData from '../../script/goodsData';
 import addressData from '../../script/addressData';
 import orderData from '../../script/orderData';
 import ConfigsData from '../../script/ConfigsData';
+import messageData from '../../script/messageData';
+import userMessData from '../../script/userMessData';
 
 // import models
 import Agent from '../../api/models/Agent';
@@ -16,6 +18,8 @@ import Goods from '../../api/models/Goods';
 import Address from '../../api/models/Address';
 import Order from '../../api/models/Order';
 import Configs from '../../api/models/Configs';
+import Message from '../../api/models/Message';
+import UserMessage from '../../api/models/UserMessage';
 
 describe('initDb', () => {
   mongoose.connection.dropDatabase();
@@ -47,6 +51,14 @@ describe('initDb', () => {
     for (let config of ConfigsData) {
       const newConfig = new Configs(config);
       await newConfig.save();
+    }
+    for (let message of messageData) {
+      const newMessage = new Message(message);
+      await newMessage.save();
+    }
+    for (let userMess of userMessData) {
+      const newUserMess = new UserMessage(userMess);
+      await newUserMess.save();
     }
   });
 });

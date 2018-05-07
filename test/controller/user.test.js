@@ -20,6 +20,18 @@ describe('Controller: user', () => {
 
     assert(user !== null);
   });
+  it('Action: login', async () => {
+    const result = await request
+      .post('/api/v1/login')
+      .send({
+        phoneNumber: '444444444',
+        password: '123456789',
+        target: 1
+      })
+      .expect(200);
+
+    assert(result.body.code === 400);
+  });
   it('Action: register', async () => {
     const idCard = `${Date.now()}${newMessage}4432165`.slice(0, 18);
     const manager = await User.findOne({ realName: '管理员' });
