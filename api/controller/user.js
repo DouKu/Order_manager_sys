@@ -4,10 +4,12 @@ import Recommend from '../models/Recommend';
 import Agent from '../models/Agent';
 import UserMessage from '../models/UserMessage';
 import Config from '../models/Configs';
+import LevelUp from '../models/Levelup';
 import { signToken } from '../service/base';
 import _ from 'lodash';
 import moment from 'moment';
 import { toObjectId } from '../service/toObjectId';
+import { addMessage } from '../service/message';
 
 // 登录
 const login = async ctx => {
@@ -57,6 +59,20 @@ const register = async ctx => {
     recommendId: { type: 'string', required: false }
   });
   const body = ctx.request.body;
+  // 检查用户
+  const userCheck = await User.findOne({ $or:
+    [
+      { phoneNumber: body.phoneNumber },
+      { idCard: body.idCard }
+    ]
+  });
+  if (userCheck) {
+    if (userCheck.phoneNumber === body.phoneNumber) {
+      ctx.throw(400, '该电话号码已被注册');
+    } else if (userCheck.idCard === body.idCard) {
+      ctx.throw(400, '该身份证已被注册，请更换或者联系管理员解决');
+    }
+  }
   let recommendUser = null;
   if (body.recommendId) {
     recommendUser = await User.findById(body.recommendId);
@@ -105,6 +121,7 @@ const register = async ctx => {
 const getUserInfo = async ctx => {
   const agents = await Agent.find();
   const manager = await User.findById(ctx.state.userMess.managerId);
+  const mess = await UserMessage.findOne({ userId: ctx.state.userMess.id });
   const nowUser = ctx.state.userMess;
   const result = _.omit(
     nowUser,
@@ -112,6 +129,7 @@ const getUserInfo = async ctx => {
   );
   const userAgent = _.filter(agents, ['level', result.level])[0];
   result.agent = userAgent.des;
+  result.messageUnRead = mess.messages.length;
   if (manager) {
     result.manager = manager.realName;
   }
@@ -132,6 +150,65 @@ const getBubordinate = async ctx => {
       );
     })
     .value();
+  ctx.body = {
+    code: 200,
+    data
+  };
+};
+
+// 等级提升申请
+const levelUp = async ctx => {
+  ctx.verifyParams({
+    level: 'int'
+  });
+  const level = ctx.request.body.level;
+  // 找出是否存在待处理的升级请求
+  const upCheck = await LevelUp.findOne({
+    applyUser: ctx.state.userMess.id,
+    deel: 1
+  });
+  if (upCheck) {
+    ctx.throw(400, '您有待处理的等级申请不能申请多次!');
+  }
+  if (level >= ctx.state.userMess.level) {
+    ctx.throw(400, '申请等级低于您当前等级');
+  }
+
+  const newUp = new LevelUp({
+    applyUser: ctx.state.userMess.id,
+    toUser: ctx.state.userMess.managerId,
+    applyLevel: level,
+    deel: 1
+  });
+  const agents = await Agent.find();
+  const userAgent = _.filter(agents, ['level', level])[0];
+  const mess = {
+    type: 2,
+    fromUser: ctx.state.userMess.id,
+    toUser: ctx.state.userMess.managerId,
+    title: '升级申请',
+    message: `用户：${ctx.state.userMess.realName}申请升级为：${userAgent.des}`
+  };
+  await addMessage(mess);
+  await newUp.save();
+  ctx.body = {
+    code: 200,
+    msg: '等级申请成功'
+  };
+};
+
+// 查看本人代理记录
+const checkLevel = async ctx => {
+  const data = await LevelUp.find({ applyUser: ctx.state.userMess.id });
+  ctx.body = {
+    code: 200,
+    data
+  };
+};
+
+// 查看下级代理记录
+const checkSubLevel = async ctx => {
+  const data = await LevelUp.find({ toUser: ctx.state.userMess.id });
   ctx.body = {
     code: 200,
     data
@@ -232,16 +309,81 @@ const newUser = async ctx => {
     avatar: { type: 'string', required: false },
     sign: { type: 'string', required: false },
     managerId: { type: 'string', required: false },
-    isManager: 'boolean',
-    expiredAt: { type: 'datetime', required: false }
+    isManager: 'boolean'
   });
   const body = ctx.request.body;
   body.expiredAt = body.expiredAt || moment('2222-02-22');
+  const userCheck = await User.findOne({ $or:
+    [
+      { phoneNumber: body.phoneNumber },
+      { idCard: body.idCard }
+    ]
+  });
+  if (userCheck) {
+    if (userCheck.phoneNumber === body.phoneNumber) {
+      ctx.throw(400, '该电话已被注册，请更换');
+    } else if (userCheck.idCard === body.idCard) {
+      ctx.throw(400, '该身份证已被注册，请更换');
+    }
+  }
+  if (body.managerId) {
+    const manager = await User.findById(body.managerId);
+    if (manager.level >= body.level) {
+      ctx.throw(400, '您填的上级的代理等级比生成的账号低(相等)，请调整相关账号信息');
+    }
+  }
   const user = new User(body);
   await user.save();
   ctx.body = {
     code: 200,
     msg: '成功生成一个新用户！'
+  };
+};
+
+// 代理审核
+const deelLevelCheck = async ctx => {
+  ctx.verifyParams({
+    deel: [2, 3]
+  });
+  const levelId = ctx.params.levelId;
+  const deel = ctx.request.body.deel;
+  const agents = await Agent.find();
+  if (deel === 2) {
+    // 同意升级，修改申请信息
+    const levelMess = await LevelUp.findByIdAndUpdate(levelId,
+      { deel: 2, updateAt: Date.now() }
+    );
+    const userAgent = _.filter(agents, ['level', levelMess.applyLevel])[0];
+    // 升级用户
+    await User.findByIdAndUpdate(levelMess.applyUser, { level: levelMess.applyLevel });
+    // 发送通知
+    const mess = {
+      type: 2,
+      fromUser: ctx.state.userMess.id,
+      toUser: levelMess.applyUser,
+      title: '升级申请审核',
+      message: `您的${userAgent.des}升级申请以被同意，恭喜您经成为${userAgent.des}！`
+    };
+    await addMessage(mess);
+  } else if (deel === 3) {
+    // 拒绝升级，修改申请
+    const levelMess = await LevelUp.findByIdAndUpdate(levelId,
+      { deel: 3, updateAt: Date.now() }
+    );
+    const userAgent = _.filter(agents, ['level', levelMess.applyLevel])[0];
+    // 发送消息
+    const mess = {
+      type: 2,
+      fromUser: ctx.state.userMess.id,
+      toUser: levelMess.applyUser,
+      title: '升级申请审核',
+      message: `您的${userAgent.des}升级申请被管理员拒绝，请继续努力！`
+    };
+    await addMessage(mess);
+  }
+  ctx.body = {
+    code: 200,
+    msg: '审核成功!'
   };
 };
 
@@ -252,5 +394,9 @@ export {
   getBubordinate,
   lockUser,
   listUser,
-  newUser
+  newUser,
+  levelUp,
+  checkLevel,
+  checkSubLevel,
+  deelLevelCheck
 };

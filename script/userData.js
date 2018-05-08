@@ -74,7 +74,7 @@ export default [
     'isManager': false,
     'appSecret': 'baefa72e7976183f3147c809bf8fdb715093e25e1b215465a518bb7b73adad61',
     'createAt': Date.now(),
-    'expiredAt': new Date('2002-01-01'),
+    'expiredAt': new Date('2222-01-01'),
     'updateAt': Date.now(),
     'phoneNumber': '444444444',
     'password': '123456789',

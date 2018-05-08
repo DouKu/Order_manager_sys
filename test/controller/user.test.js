@@ -2,8 +2,10 @@
 import { request } from '../bootstrap.test';
 import assert from 'power-assert';
 import User from '../../api/models/User';
+import LevelUp from '../../api/models/Levelup';
 import Recommend from '../../api/models/Recommend';
 import { toObjectId } from '../../api/service/toObjectId';
+import UserMessage from '../../api/models/UserMessage';
 
 describe('Controller: user', () => {
   let user = null;
@@ -20,22 +22,10 @@ describe('Controller: user', () => {
 
     assert(user !== null);
   });
-  it('Action: login', async () => {
-    const result = await request
-      .post('/api/v1/login')
-      .send({
-        phoneNumber: '444444444',
-        password: '123456789',
-        target: 1
-      })
-      .expect(200);
-
-    assert(result.body.code === 400);
-  });
   it('Action: register', async () => {
     const idCard = `${Date.now()}${newMessage}4432165`.slice(0, 18);
     const manager = await User.findOne({ realName: '管理员' });
-    const result = await request
+    let result = await request
       .post('/api/v1/register')
       .send({
         phoneNumber: newMessage,
@@ -51,6 +41,20 @@ describe('Controller: user', () => {
     assert(newUser !== null);
     assert(result.body.code === 200);
     assert(newRec.fromUser.toString() === manager.id);
+
+    // 注册失败
+    result = await request
+      .post('/api/v1/register')
+      .send({
+        phoneNumber: newMessage,
+        password: newMessage,
+        realName: newMessage,
+        idCard: idCard,
+        managerId: manager.id,
+        recommendId: manager.id
+      })
+      .expect(200);
+    assert(result.body.code === 400);
   });
   it('Action: getUserInfo', async () => {
     const login = await request
@@ -68,6 +72,7 @@ describe('Controller: user', () => {
       .expect(200);
 
     assert(result.body.data.manager === '管理员');
+    assert(result.body.data.messageUnRead > 0);
   });
   it('Action: lockUser', async () => {
     await request
@@ -78,8 +83,18 @@ describe('Controller: user', () => {
       .set({ Authorization: `Bearer ${user.body.token}` })
       .expect(200);
 
-    const lockUser = await User.findById('5ae0583e88c08266d47c4014');
+    let lockUser = await User.findById('5ae0583e88c08266d47c4014');
     assert(lockUser.isLock === true);
+
+    await request
+      .put('/api/mana/user/5ae0583e88c08266d47c4014')
+      .send({
+        isLock: false
+      })
+      .set({ Authorization: `Bearer ${user.body.token}` })
+      .expect(200);
+    lockUser = await User.findById('5ae0583e88c08266d47c4014');
+    assert(lockUser.isLock === false);
   });
   it('Action: listUser', async () => {
     let result = await request
@@ -116,5 +131,180 @@ describe('Controller: user', () => {
       .expect(200);
 
     assert(result.body.data[0].level === 6);
+  });
+  it('Action: newUser', async () => {
+    const login = await request
+      .post('/api/v1/login')
+      .send({
+        phoneNumber: '123456789',
+        password: '123456789',
+        target: 1
+      });
+    let result = await request
+      .post('/api/mana/user')
+      .set({ Authorization: 'Bearer ' + login.body.token })
+      .send({
+        phoneNumber: '1325343257',
+        password: '123456789',
+        nickname: 'wtf',
+        realName: 'WTF',
+        idCard: '544567576315778524',
+        level: 5,
+        avatar: 'SDFKJDSLKJF',
+        sign: 'what the fuck with that?',
+        managerId: '5ae0583e88c08266d47c4012',
+        isManager: false
+      })
+      .expect(200);
+
+    assert(result.body.code === 200);
+
+    // 失败的生成
+    result = await request
+      .post('/api/mana/user')
+      .set({ Authorization: 'Bearer ' + login.body.token })
+      .send({
+        phoneNumber: '1325343256',
+        password: '123456789',
+        nickname: 'wtf',
+        realName: 'WTF',
+        idCard: '544567576315778564',
+        level: 3,
+        avatar: 'SDFKJDSLKJF',
+        sign: 'what the fuck with that?',
+        managerId: '5ae0583e88c08266d47c4012',
+        isManager: false
+      })
+      .expect(200);
+
+    assert(result.body.code === 400);
+  });
+  it('Action: levelUp', async () => {
+    const login = await request
+      .post('/api/v1/login')
+      .send({
+        phoneNumber: '444444444',
+        password: '123456789',
+        target: 1
+      });
+    // 等级不符失败申请
+    let result = await request
+      .post('/api/auth/level')
+      .set({ Authorization: 'Bearer ' + login.body.token })
+      .send({
+        level: 6
+      })
+      .expect(200);
+    assert(result.body.code === 400);
+    // 成功申请
+    result = await request
+      .post('/api/auth/level')
+      .set({ Authorization: 'Bearer ' + login.body.token })
+      .send({
+        level: 5
+      })
+      .expect(200);
+    assert(result.body.code === 200);
+    // 重复申请导致失败
+    result = await request
+      .post('/api/auth/level')
+      .set({ Authorization: 'Bearer ' + login.body.token })
+      .send({
+        level: 5
+      })
+      .expect(200);
+    assert(result.body.code === 400);
+  });
+  it('Action: checkLevel', async () => {
+    const login = await request
+      .post('/api/v1/login')
+      .send({
+        phoneNumber: '444444444',
+        password: '123456789',
+        target: 1
+      });
+
+    let result = await request
+      .get('/api/auth/level')
+      .set({ Authorization: 'Bearer ' + login.body.token })
+      .expect(200);
+
+    assert(result.body.data.length === 1);
+  });
+  it('Action: checkSubLevel', async () => {
+    const login = await request
+      .post('/api/v1/login')
+      .send({
+        phoneNumber: '333333333',
+        password: '123456789',
+        target: 1
+      });
+
+    let result = await request
+      .get('/api/auth/sublevel')
+      .set({ Authorization: 'Bearer ' + login.body.token })
+      .expect(200);
+
+    assert(result.body.data.length === 1);
+  });
+  it('Action: deelLevelCheck', async () => {
+    const login = await request
+      .post('/api/v1/login')
+      .send({
+        phoneNumber: '123456789',
+        password: '123456789',
+        target: 1
+      });
+
+    let levelMess = await LevelUp.findOne(
+      { applyUser: toObjectId('5ae0583e88c08266d47c4014') }
+    );
+    let fontMessNum = await UserMessage.findOne({
+      userId: toObjectId('5ae0583e88c08266d47c4014')
+    });
+    fontMessNum = fontMessNum.messages.length;
+    // 拒绝升级
+    let result = await request
+      .put('/api/mana/level/' + levelMess.id)
+      .set({ Authorization: 'Bearer ' + login.body.token })
+      .send({
+        deel: 3
+      })
+      .expect(200);
+
+    let afterMessNum = await UserMessage.findOne({
+      userId: toObjectId('5ae0583e88c08266d47c4014')
+    });
+    afterMessNum = afterMessNum.messages.length;
+    let userM = await User.findById('5ae0583e88c08266d47c4014');
+    // 用户消息增加
+    assert(afterMessNum > fontMessNum);
+    // 没有升级
+    assert(userM.level === 6);
+    assert(result.body.code === 200);
+
+    // 同意升级
+    fontMessNum = await UserMessage.findOne({
+      userId: toObjectId('5ae0583e88c08266d47c4014')
+    });
+    fontMessNum = fontMessNum.messages.length;
+    result = await request
+      .put('/api/mana/level/' + levelMess.id)
+      .set({ Authorization: 'Bearer ' + login.body.token })
+      .send({
+        deel: 2
+      })
+      .expect(200);
+
+    afterMessNum = await UserMessage.findOne({
+      userId: toObjectId('5ae0583e88c08266d47c4014')
+    });
+    afterMessNum = afterMessNum.messages.length;
+    userM = await User.findById('5ae0583e88c08266d47c4014');
+    // 消息增加
+    assert(afterMessNum > fontMessNum);
+    // 升级成功
+    assert(userM.level === 5);
+    assert(result.body.code === 200);
   });
 });
