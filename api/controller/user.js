@@ -184,12 +184,33 @@ const listUser = async ctx => {
     createAt: -1,
     level: 1
   }, body.sort);
-  const data = await User.find(conditions)
+  let data = await User.find(conditions)
+    .populate('managerId', 'realName')
     .where('createAt').gte(beginDate).lte(endDate)
     .sort(sort)
     .skip(skip)
     .limit(body.limit);
 
+  data = _.chain(data)
+    .map(o => {
+      let manager = null;
+      o.managerId ? manager = o.managerId.realName : manager = null;
+      return {
+        phoneNumber: o.phoneNumber,
+        nickname: o.nickname,
+        realName: o.realName,
+        idCard: o.idCard,
+        level: o.level,
+        avatar: o.avatar,
+        manager,
+        isManager: o.isManager,
+        isLock: o.isLock,
+        isActive: o.isActive,
+        createAt: o.createAt,
+        expiredAt: o.expiredAt
+      };
+    })
+    .value();
   const count = await User.count(conditions);
 
   ctx.body = {
@@ -199,11 +220,37 @@ const listUser = async ctx => {
   };
 };
 
+// 创建用户
+const newUser = async ctx => {
+  ctx.verifyParams({
+    phoneNumber: 'string',
+    password: 'string',
+    nickname: { type: 'string', required: false },
+    realName: 'string',
+    idCard: { type: 'string', min: 18, max: 18 },
+    level: 'int',
+    avatar: { type: 'string', required: false },
+    sign: { type: 'string', required: false },
+    managerId: { type: 'string', required: false },
+    isManager: 'boolean',
+    expiredAt: { type: 'datetime', required: false }
+  });
+  const body = ctx.request.body;
+  body.expiredAt = body.expiredAt || moment('2222-02-22');
+  const user = new User(body);
+  await user.save();
+  ctx.body = {
+    code: 200,
+    msg: '成功生成一个新用户！'
+  };
+};
+
 export {
   login,
   register,
   getUserInfo,
   getBubordinate,
   lockUser,
-  listUser
+  listUser,
+  newUser
 };
