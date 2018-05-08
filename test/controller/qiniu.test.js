@@ -23,7 +23,7 @@ describe('Controller: address', () => {
 
     assert(result.body.code === 200);
   });
-  it.skip('Action: upload', async () => {
+  it('Action: upload', async () => {
     const result = await request
       .post('/api/auth/upload')
       .set({ Authorization: 'Bearer ' + user.body.token })
