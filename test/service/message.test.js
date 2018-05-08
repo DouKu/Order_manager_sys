@@ -21,7 +21,10 @@ describe('Service: message', () => {
       { userId: toObjectId('5ae0583e88c08266d47c4010') }
     );
     assert(longer.messages.length > shotter.messages.length);
-
+    let beforeMess = await UserMessage.findOne(
+      { userId: toObjectId('5ae0583e88c08266d47c4014') }
+    );
+    beforeMess = beforeMess.messages.length;
     data = {
       'type': 1,
       'fromUser': toObjectId('5ae0583e88c08266d47c4013'),
@@ -31,9 +34,11 @@ describe('Service: message', () => {
       'createAt': Date.now()
     };
     await addMessage(data);
-    const userMess = await UserMessage.findOne(
+    let afterMess = await UserMessage.findOne(
       { userId: toObjectId('5ae0583e88c08266d47c4014') }
     );
-    assert(userMess.messages.length === 2);
+    afterMess = afterMess.messages.length;
+
+    assert(afterMess > beforeMess);
   });
 });

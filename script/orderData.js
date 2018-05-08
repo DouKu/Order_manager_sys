@@ -30,6 +30,7 @@ export default [
         'num': 2
       }
     ],
+    'screenshots': 'http://p83bxxwbt.bkt.clouddn.com/FrWhJeimhkoOewN3fh86hx_tOR3_',
     'sumPrice': 156,
     'state': 1,
     'address': 'scnu spxq c3 sushe',
@@ -65,6 +66,7 @@ export default [
         'num': 2
       }
     ],
+    'screenshots': 'http://p83bxxwbt.bkt.clouddn.com/FrWhJeimhkoOewN3fh86hx_tOR3_',
     'sumPrice': 156,
     'state': 1,
     'address': 'scnu spxq c3 sushe',
@@ -100,6 +102,7 @@ export default [
         'num': 2
       }
     ],
+    'screenshots': 'http://p83bxxwbt.bkt.clouddn.com/FrWhJeimhkoOewN3fh86hx_tOR3_',
     'sumPrice': 156,
     'state': 8,
     'address': 'scnu spxq c3 sushe',

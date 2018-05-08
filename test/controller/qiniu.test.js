@@ -17,10 +17,19 @@ describe('Controller: address', () => {
   });
   it('Action: getUploadToken', async () => {
     const result = await request
-      .get('/api/auth/uploadToken')
+      .get('/api/auth/uploadToken?fileName=lalala')
       .set({ Authorization: 'Bearer ' + user.body.token })
       .expect(200);
 
     assert(result.body.code === 200);
+  });
+  it.skip('Action: upload', async () => {
+    const result = await request
+      .post('/api/auth/upload')
+      .set({ Authorization: 'Bearer ' + user.body.token })
+      .attach('file', '/home/qill/MyProject/order-manage-sys/test/files/404.png')
+      .expect(200);
+
+    assert(result.body.fsize > 0);
   });
 });

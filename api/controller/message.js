@@ -3,6 +3,7 @@ import Message from '../models/Message';
 import UserMessage from '../models/UserMessage';
 import _ from 'lodash';
 import { toObjectId } from '../service/toObjectId';
+import { addMessage } from '../service/message';
 
 // 获取未读通知
 const getUnReadMess = async ctx => {
@@ -106,10 +107,31 @@ const readAll = async ctx => {
   };
 };
 
+// 发布公告
+const announcement = async ctx => {
+  ctx.verifyParams({
+    title: 'string',
+    message: 'string'
+  });
+  const body = ctx.request.body;
+  const data = {
+    type: 3,
+    fromUser: ctx.state.userMess.id,
+    title: body.title,
+    message: body.message
+  };
+  await addMessage(data);
+  ctx.body = {
+    code: 200,
+    msg: '公告发布成功！'
+  };
+};
+
 export {
   getUnReadMess,
   getAllMess,
   readMess,
   messDetail,
-  readAll
+  readAll,
+  announcement
 };

@@ -189,9 +189,13 @@ const listUser = async ctx => {
     .sort(sort)
     .skip(skip)
     .limit(body.limit);
+
+  const count = await User.count(conditions);
+
   ctx.body = {
     code: 200,
-    data
+    data,
+    count
   };
 };
 

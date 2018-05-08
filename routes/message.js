@@ -4,7 +4,8 @@ import {
   getAllMess,
   readMess,
   messDetail,
-  readAll
+  readAll,
+  announcement
 } from '../api/controller/message';
 
 module.exports = (router, authRouter, commonRouter, managerRouter) => {
@@ -18,4 +19,6 @@ module.exports = (router, authRouter, commonRouter, managerRouter) => {
   authRouter.put('/mess/:messId', readMess);
   // 全部已读
   authRouter.get('/messClean', readAll);
+  // 发布公告
+  managerRouter.post('/announcement', announcement);
 };

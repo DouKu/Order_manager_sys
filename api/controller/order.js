@@ -66,10 +66,11 @@ const addOrder = async ctx => {
       rule: {
         name: 'string',
         price: 'number',
-        picture: 'string',
+        picture: { type: 'string', required: false },
         num: 'int'
       }
     },
+    screenshots: 'string',
     address: 'string',
     receivePeople: 'string',
     postalCode: 'string',
@@ -88,6 +89,7 @@ const addOrder = async ctx => {
     goods: body.goods,
     sumPrice: sumPrice,
     state: 1,
+    screenshots: body.screenshots,
     address: body.address,
     receivePeople: body.receivePeople,
     postalCode: body.postalCode,
@@ -170,6 +172,8 @@ const listOrder = async ctx => {
     .skip(skip)
     .limit(body.limit);
 
+  const count = await Order.count(conditions);
+
   data = _.chain(data)
     .map(o => {
       return {
@@ -183,13 +187,15 @@ const listOrder = async ctx => {
         toUserId: o.toUser.id,
         goods: o.goods,
         state: o.state,
-        sumPrice: o.sumPrice
+        sumPrice: o.sumPrice,
+        screenshots: o.screenshots
       };
     })
     .value();
   ctx.body = {
     code: 200,
-    data
+    data,
+    count
   };
 };
 

@@ -103,6 +103,7 @@ describe('Controller: Order', () => {
       .set({ Authorization: 'Bearer ' + user2.body.token })
       .send({
         goods: goodDeel,
+        screenshots: 'lalalalla',
         address: address.address,
         receivePeople: address.receivePeople,
         postalCode: address.postalCode,

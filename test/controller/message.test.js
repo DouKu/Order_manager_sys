@@ -95,4 +95,24 @@ describe('Controller: message', () => {
     );
     assert(result.messages.length === 0);
   });
+  it('Action: announcement', async () => {
+    user = await request
+      .post('/api/v1/login')
+      .send({
+        phoneNumber: '123456789',
+        password: '123456789',
+        target: 2
+      });
+
+    const result = await request
+      .post('/api/mana/announcement')
+      .send({
+        title: '测试系统公告',
+        message: '测试测试测试测试，unit test！！！！！'
+      })
+      .set({ Authorization: 'Bearer ' + user.body.token })
+      .expect(200);
+
+    assert(result.body.code === 200);
+  });
 });
