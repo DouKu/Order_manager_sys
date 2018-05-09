@@ -160,7 +160,7 @@ const listOrder = async ctx => {
   const endDate = body.conditions.endDate || Date.now();
   const beginDate = body.conditions.beginDate || moment('1971-01-01').format();
   const skip = (body.page - 1) * body.limit;
-  const conditions = _.omit(body.conditions, ['beginDate', 'endDate']); ;
+  const conditions = _.omit(body.conditions, ['beginDate', 'endDate']);
   const sort = Object.assign({
     createAt: -1
   }, body.sort);

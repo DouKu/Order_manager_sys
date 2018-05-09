@@ -340,6 +340,72 @@ const newUser = async ctx => {
   };
 };
 
+// 代理升级请求列表
+const listLevel = async ctx => {
+  ctx.verifyParams({
+    page: 'int',
+    limit: 'int',
+    conditions: {
+      type: 'object',
+      rule: {
+        beginDate: { type: 'datetime', required: false },
+        endDate: { type: 'datetime', required: false },
+        deel: { type: 'int', required: false },
+        applyUser: { type: 'string', required: false }
+      }
+    },
+    sort: {
+      type: 'object',
+      rule: {
+        createAt: { type: 'enum', values: [-1, 1], required: false }
+      }
+    }
+  });
+  const body = ctx.request.body;
+  const endDate = body.conditions.endDate || Date.now();
+  const beginDate = body.conditions.beginDate || moment('1971-01-01').format();
+  const skip = (body.page - 1) * body.limit;
+  const conditions = _.omit(body.conditions, ['beginDate', 'endDate']);
+  if (conditions.applyUser) {
+    conditions.applyUser = toObjectId(conditions.applyUser);
+  }
+  const sort = Object.assign({
+    deel: 1,
+    applyLevel: 1,
+    createAt: -1,
+    updateAt: -1
+  }, body.sort);
+
+  let data = await LevelUp.find(conditions)
+    .where('createAt').gte(beginDate).lte(endDate)
+    .populate('applyUser', 'realName level')
+    .sort(sort)
+    .skip(skip)
+    .limit(body.limit);
+
+  const count = await LevelUp.count(conditions);
+
+  data = _.chain(data)
+    .map(o => {
+      return {
+        id: o.id,
+        createAt: o.createAt,
+        updateAt: o.updateAt,
+        applyUserName: o.applyUser.realName,
+        applyUserLevel: o.applyUser.level,
+        applyUserId: o.applyUser.id,
+        deel: o.deel,
+        applyLevel: o.applyLevel
+      };
+    })
+    .value();
+  ctx.body = {
+    code: 200,
+    data,
+    count
+  };
+};
+
 // 代理审核
 const deelLevelCheck = async ctx => {
   ctx.verifyParams({
@@ -398,5 +464,6 @@ export {
   levelUp,
   checkLevel,
   checkSubLevel,
+  listLevel,
   deelLevelCheck
 };

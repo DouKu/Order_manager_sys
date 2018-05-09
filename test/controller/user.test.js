@@ -247,6 +247,41 @@ describe('Controller: user', () => {
 
     assert(result.body.data.length === 1);
   });
+  it('Action: listLevel', async () => {
+    const login = await request
+      .post('/api/v1/login')
+      .send({
+        phoneNumber: '123456789',
+        password: '123456789',
+        target: 1
+      });
+    let result = await request
+      .post('/api/mana/level')
+      .set({ Authorization: 'Bearer ' + login.body.token })
+      .send({
+        page: 1,
+        limit: 20,
+        conditions: {},
+        sort: {}
+      });
+
+    assert(result.body.code === 200);
+
+    // 条件搜索
+    result = await request
+      .post('/api/mana/level')
+      .set({ Authorization: 'Bearer ' + login.body.token })
+      .send({
+        page: 1,
+        limit: 20,
+        conditions: {
+          deel: 2
+        },
+        sort: {}
+      });
+
+    assert(result.body.data.length === 0);
+  });
   it('Action: deelLevelCheck', async () => {
     const login = await request
       .post('/api/v1/login')
