@@ -29,7 +29,7 @@ describe('Controller: message', () => {
         password: '123456789',
         target: 1
       });
-    const result = await request
+    let result = await request
       .post('/api/auth/messAll')
       .send({
         page: 1,
@@ -39,7 +39,18 @@ describe('Controller: message', () => {
       .expect(200);
 
     assert(result.body.data.length === 5);
-    assert(result.body.code === 200);
+
+    result = await request
+      .post('/api/auth/messAll')
+      .send({
+        page: 1,
+        limit: 3
+      })
+      .set({ Authorization: 'Bearer ' + user.body.token })
+      .expect(200);
+
+    assert(result.body.data.length === 3);
+    assert(result.body.count >= result.body.data.length);
   });
   it('Action: readMess', async () => {
     user = await request

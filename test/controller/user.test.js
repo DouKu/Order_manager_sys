@@ -275,7 +275,24 @@ describe('Controller: user', () => {
         page: 1,
         limit: 20,
         conditions: {
-          deel: 2
+          deel: 1,
+          applyUser: '5ae0583e88c08266d47c4014'
+        },
+        sort: {}
+      });
+
+    assert(result.body.data.length > 0);
+
+    // 空搜索
+    result = await request
+      .post('/api/mana/level')
+      .set({ Authorization: 'Bearer ' + login.body.token })
+      .send({
+        page: 1,
+        limit: 20,
+        conditions: {
+          deel: 2,
+          applyUser: '5ae0583e88c08266d47c4013'
         },
         sort: {}
       });

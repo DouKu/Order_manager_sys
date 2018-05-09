@@ -1,4 +1,7 @@
 import mongoose from 'mongoose';
+import assert from 'power-assert';
+import daySummary from '../../api/schedule/daySummary';
+
 // import data
 import agentData from '../../script/agentData';
 import userData from '../../script/userData';
@@ -20,6 +23,7 @@ import Order from '../../api/models/Order';
 import Configs from '../../api/models/Configs';
 import Message from '../../api/models/Message';
 import UserMessage from '../../api/models/UserMessage';
+import Summary from '../../api/models/Summary';
 
 describe('initDb', () => {
   mongoose.connection.dropDatabase();
@@ -60,5 +64,11 @@ describe('initDb', () => {
       const newUserMess = new UserMessage(userMess);
       await newUserMess.save();
     }
+  });
+  it('Schedule: daySummary', async () => {
+    await daySummary();
+    const summNum = await Summary.count({});
+    const userNum = await User.count({});
+    assert(summNum === userNum);
   });
 });

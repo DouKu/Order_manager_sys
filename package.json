@@ -36,6 +36,7 @@
     "moment": "^2.22.1",
     "mongoose": "^5.0.15",
     "nconf": "^0.10.0",
+    "node-schedule": "^1.3.0",
     "pg": "^7.4.1",
     "pg-hstore": "^2.3.2",
     "qcloudsms_js": "^0.1.0",

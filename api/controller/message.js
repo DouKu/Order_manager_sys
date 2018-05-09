@@ -50,6 +50,9 @@ const getAllMess = async ctx => {
     .skip((page - 1) * limit)
     .limit(limit);
 
+  const count = await Message.count(
+    { $or: [{ toUser: ctx.state.userMess.id }, { type: 3 }] }
+  );
   data = _.chain(data)
     .map(o => {
       return {
@@ -65,7 +68,8 @@ const getAllMess = async ctx => {
 
   ctx.body = {
     code: 200,
-    data
+    data,
+    count
   };
 };
 
