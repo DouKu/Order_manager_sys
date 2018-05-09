@@ -7,6 +7,14 @@
       "exec_interpreter": "babel-node",
       "exec_mode": "fork",
       "watch": false
+    }, 
+    {
+      "name": "ysrm-schedule",
+      "script": "./api/schedule/index.js",
+      "instances": 1,
+      "exec_interpreter": "babel-node",
+      "exec_mode": "fork",
+      "watch": false
     }
   ]
 }

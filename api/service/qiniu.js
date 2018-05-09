@@ -3,6 +3,7 @@ import Busboy from 'busboy';
 import path from 'path';
 import qiniu from 'qiniu';
 import nconf from 'nconf';
+import crypto from 'crypto';
 
 // 写入目录
 const mkdirsSync = (dirname) => {
@@ -24,6 +25,12 @@ function getSuffix (fileName) {
 // 重命名
 function Rename (fileName) {
   return Math.random().toString(16).substr(2) + '.' + getSuffix(fileName);
+}
+
+function getName () {
+  return 'upload-' + crypto.createHash('md5')
+    .update((Date.now() + Math.floor(Math.random() * 10).toString()))
+    .digest('hex');
 }
 
 // 删除文件
@@ -103,8 +110,37 @@ function uploadFile (ctx, options) {
   });
 }
 
+function upload64 (ctx, options) {
+  const fileType = options.fileType;
+  const filePath = path.join(options.path, fileType);
+  const confirm = mkdirsSync(filePath);
+  if (!confirm) {
+    return;
+  }
+  // 接收前台POST过来的base64
+  const imgData = ctx.request.body.data;
+  // 过滤data:URL
+  const fileName = getName();
+  const saveTo = path.join(path.join(filePath, fileName));
+  const base64Data = imgData.replace(/^data:image\/\w+;base64,/, '');
+  const dataBuffer = Buffer.from(base64Data, 'base64');
+  return new Promise((resolve, reject) => {
+    fs.writeFile(saveTo, dataBuffer, function (err) {
+      if (err) {
+        reject(err);
+      } else {
+        resolve({
+          imgPath: `/${fileType}/${fileName}`,
+          imgKey: fileName
+        });
+      }
+    });
+  });
+};
+
 export {
   uploadFile,
   upToQiniu,
-  removeTemImage
+  removeTemImage,
+  upload64
 };

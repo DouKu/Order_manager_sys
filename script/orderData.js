@@ -17,14 +17,14 @@ export default [
       },
       {
         '_id': toObjectId('5ae56c3e59551115b3d3a179'),
-        'name': 'test',
+        'name': 'test1',
         'price': 26,
         'picture': 'http://oqzgtjqen.bkt.clouddn.com/1066973925.jpg',
         'num': 2
       },
       {
         '_id': toObjectId('5ae56c3e59551115b3d3a178'),
-        'name': 'test',
+        'name': 'test2',
         'price': 36,
         'picture': 'http://oqzgtjqen.bkt.clouddn.com/1066973925.jpg',
         'num': 2
@@ -53,14 +53,14 @@ export default [
       },
       {
         '_id': toObjectId('5ae56c3e59551115b3d3a179'),
-        'name': 'test',
+        'name': 'test1',
         'price': 26,
         'picture': 'http://oqzgtjqen.bkt.clouddn.com/1066973925.jpg',
         'num': 2
       },
       {
         '_id': toObjectId('5ae56c3e59551115b3d3a178'),
-        'name': 'test',
+        'name': 'test2',
         'price': 36,
         'picture': 'http://oqzgtjqen.bkt.clouddn.com/1066973925.jpg',
         'num': 2
@@ -89,14 +89,14 @@ export default [
       },
       {
         '_id': toObjectId('5ae56c3e59551115b3d3a179'),
-        'name': 'test',
+        'name': 'test1',
         'price': 26,
         'picture': 'http://oqzgtjqen.bkt.clouddn.com/1066973925.jpg',
         'num': 2
       },
       {
         '_id': toObjectId('5ae56c3e59551115b3d3a178'),
-        'name': 'test',
+        'name': 'test2',
         'price': 36,
         'picture': 'http://oqzgtjqen.bkt.clouddn.com/1066973925.jpg',
         'num': 2

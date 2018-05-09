@@ -6,6 +6,7 @@ import LevelUp from '../../api/models/Levelup';
 import Recommend from '../../api/models/Recommend';
 import { toObjectId } from '../../api/service/toObjectId';
 import UserMessage from '../../api/models/UserMessage';
+import Summary from '../../api/models/Summary';
 
 describe('Controller: user', () => {
   let user = null;
@@ -158,6 +159,13 @@ describe('Controller: user', () => {
       .expect(200);
 
     assert(result.body.code === 200);
+    const newUser = await User.findOne({ phoneNumber: 1325343257 });
+    // 成功生成信息表
+    const userMessage = await UserMessage.findOne({ userId: newUser.id });
+    assert(userMessage !== null);
+    // 成功生成统计表
+    const summary = await Summary.findOne({ user: newUser.id });
+    assert(summary !== null);
 
     // 失败的生成
     result = await request

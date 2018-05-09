@@ -41,7 +41,7 @@ const findRecommendsByUser = async ctx => {
     .populate('fromUser toUser')
     .sort({ createAt: -1 });
 
-  const count = await Recommend.find({ fromUser: toObjectId(fromUser) }).count();
+  const count = await Recommend.count({ fromUser: toObjectId(fromUser) });
 
   const result = _.chain(rec)
     .map(o => {

@@ -9,7 +9,7 @@ const SummarySchema = new Schema({
     name: { type: String }, // 商品名
     num: { type: Number } // 商品数量
   }],
-  goodsNum: { type: Number, default: 0 }, // 出货量
+  goodsNum: { type: Number, default: 0 }, // 总出货量
   sumPrice: { type: Number, default: 0 }, // 总交易额
   createAt: { type: Date } // 创建时间
 }, {

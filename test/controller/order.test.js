@@ -5,10 +5,12 @@ import moment from 'moment';
 import Order from '../../api/models/Order';
 import Goods from '../../api/models/Goods';
 import orderData from '../../script/orderData';
+import Summary from '../../api/models/Summary';
 import _ from 'lodash';
 import Address from '../../api/models/Address';
 import UserMess from '../../api/models/UserMessage';
 import { toObjectId } from '../../api/service/toObjectId';
+import { getdate } from '../../api/service/countDate';
 
 describe('Controller: Order', () => {
   let user = null;
@@ -122,6 +124,7 @@ describe('Controller: Order', () => {
     assert(afterMess > beforeMess);
   });
   it('Action: markOrder', async () => {
+    // 标记发货
     let result = await request
       .put(`/api/auth/order/5ae56c3e59551115b3d3a177`)
       .set({ Authorization: 'Bearer ' + user.body.token })
@@ -132,6 +135,8 @@ describe('Controller: Order', () => {
       .expect(200);
 
     assert(result.body.data.state === 4);
+
+    // 标记发货没有快递单号，标记失败
     result = await request
       .put(`/api/auth/order/5ae56c3e59551115b3d3a166`)
       .set({ Authorization: 'Bearer ' + user.body.token })
@@ -141,6 +146,8 @@ describe('Controller: Order', () => {
       .expect(200);
 
     assert(result.body.code === 400);
+
+    // 标记接单不需要快递单号，标记成功
     result = await request
       .put(`/api/auth/order/5ae56c3e59551115b3d3a166`)
       .set({ Authorization: 'Bearer ' + user.body.token })
@@ -150,6 +157,31 @@ describe('Controller: Order', () => {
       .expect(200);
 
     assert(result.body.data.state === 2);
+
+    // 标记已交易确认会添加数据到统计表
+    const date = getdate();
+
+    let lessLength = await Summary.findOne(
+      { user: toObjectId('5ae0583e88c08266d47c4010') }
+    )
+      .where('createAt').gte(date.dayBegin).lte(date.dayEnd);
+
+    lessLength = lessLength.goods.length;
+    result = await request
+      .put(`/api/auth/order/5ae56c3e59551115b3d3a166`)
+      .set({ Authorization: 'Bearer ' + user.body.token })
+      .send({
+        state: 5
+      })
+      .expect(200);
+
+    let summary = await Summary.findOne(
+      { user: toObjectId('5ae0583e88c08266d47c4010') }
+    )
+      .where('createAt').gte(date.dayBegin).lte(date.dayEnd);
+    let bigLength = summary.goods.length;
+    assert(bigLength > lessLength);
+    assert(summary.sumPrice > 0);
   });
   it('Action: listOrder', async () => {
     // 条件查询

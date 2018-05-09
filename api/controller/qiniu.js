@@ -2,7 +2,7 @@ import qiniu from 'qiniu';
 import nconf from 'nconf';
 import path from 'path';
 import crypto from 'crypto';
-import { uploadFile, upToQiniu, removeTemImage } from '../service/qiniu';
+import { uploadFile, upload64, upToQiniu, removeTemImage } from '../service/qiniu';
 
 const getUploadToken = async ctx => {
   const key = crypto.createHash('md5')
@@ -47,7 +47,28 @@ const upload = async ctx => {
   };
 };
 
+const uploadBase64 = async ctx => {
+  // ignore non-POSTs
+  const serverPath = path.join(__dirname, '../../.tmp/');
+  // 获取上存图片
+  const result = await upload64(ctx, {
+    fileType: 'album',
+    path: serverPath
+  });
+  const imgPath = path.join(serverPath, result.imgPath);
+  // 上传到七牛
+  // 上传到七牛
+  const qiniu = await upToQiniu(imgPath, result.imgKey);
+  // 上存到七牛之后 删除原来的缓存图片
+  removeTemImage(imgPath);
+  ctx.body = {
+    imgUrl: `${nconf.get('qiniu').Domain}${qiniu.key}`,
+    fsize: qiniu.fsize
+  };
+};
+
 export {
   getUploadToken,
-  upload
+  upload,
+  uploadBase64
 };

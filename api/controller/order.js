@@ -5,6 +5,7 @@ import Order from '../models/Order';
 import { toObjectId } from '../service/toObjectId';
 import { addMessage } from '../service/message';
 import { orderIm } from '../service/order';
+import { addSummary } from '../service/summary';
 
 // 查看我的下单(需要时间范围,分页)
 const checkMyOrder = async ctx => {
@@ -130,6 +131,10 @@ const markOrder = async ctx => {
   );
   const Im = orderIm(ctx.state.userMess, body.state, orderMessage);
   await addMessage(Im);
+  // 交易完成生成统计表
+  if (body.state === 5) {
+    await addSummary(orderMessage);
+  }
   ctx.body = {
     code: 200,
     data: orderMessage
@@ -172,7 +177,8 @@ const listOrder = async ctx => {
     .skip(skip)
     .limit(body.limit);
 
-  const count = await Order.count(conditions);
+  const count = await Order.count(conditions)
+    .where('createAt').gte(beginDate).lte(endDate); ;
 
   data = _.chain(data)
     .map(o => {

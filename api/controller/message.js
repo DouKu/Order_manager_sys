@@ -59,7 +59,7 @@ const getAllMess = async ctx => {
         createAt: o.createAt,
         type: o.type,
         fromUser: o.fromUser.realName,
-        title: o.id,
+        title: o.title,
         message: o.message,
         id: o.id
       };

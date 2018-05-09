@@ -1,13 +1,14 @@
 'use strict';
+import _ from 'lodash';
+import moment from 'moment';
 import User from '../models/User';
 import Recommend from '../models/Recommend';
 import Agent from '../models/Agent';
 import UserMessage from '../models/UserMessage';
 import Config from '../models/Configs';
 import LevelUp from '../models/Levelup';
+import Summary from '../models/Summary';
 import { signToken } from '../service/base';
-import _ from 'lodash';
-import moment from 'moment';
 import { toObjectId } from '../service/toObjectId';
 import { addMessage } from '../service/message';
 
@@ -99,8 +100,18 @@ const register = async ctx => {
     userId: user._id,
     messages: []
   });
-
   await userMessage.save();
+
+  // 生成日度统计表
+  const summary = new Summary({
+    user: user._id,
+    goods: 0,
+    createAt: Date.now()
+  });
+  await summary.save();
+
+  // 生成月度统计表
+  // const mSummary =
 
   // 生成推荐人信息
   if (recommendUser) {
@@ -262,8 +273,8 @@ const listUser = async ctx => {
     level: 1
   }, body.sort);
   let data = await User.find(conditions)
-    .populate('managerId', 'realName')
     .where('createAt').gte(beginDate).lte(endDate)
+    .populate('managerId', 'realName')
     .sort(sort)
     .skip(skip)
     .limit(body.limit);
@@ -288,7 +299,8 @@ const listUser = async ctx => {
       };
     })
     .value();
-  const count = await User.count(conditions);
+  const count = await User.count(conditions)
+    .where('createAt').gte(beginDate).lte(endDate);
 
   ctx.body = {
     code: 200,
@@ -334,6 +346,21 @@ const newUser = async ctx => {
   }
   const user = new User(body);
   await user.save();
+  // 生成用户消息表
+  const userMessage = new UserMessage({
+    userId: user._id,
+    messages: []
+  });
+  await userMessage.save();
+
+  // 生成日度统计表
+  const summary = new Summary({
+    user: user._id,
+    goods: 0,
+    createAt: Date.now()
+  });
+  await summary.save();
+
   ctx.body = {
     code: 200,
     msg: '成功生成一个新用户！'
@@ -383,7 +410,8 @@ const listLevel = async ctx => {
     .skip(skip)
     .limit(body.limit);
 
-  const count = await LevelUp.count(conditions);
+  const count = await LevelUp.count(conditions)
+    .where('createAt').gte(beginDate).lte(endDate);
 
   data = _.chain(data)
     .map(o => {

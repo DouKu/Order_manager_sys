@@ -5,6 +5,27 @@ const monDura = months => {
   return moment.duration({ 'months': months });
 };
 
+// 根据时间戳获取当天0点与第二天0点
+const getdate = (date = Date.now()) => {
+  const dayBegin = moment(date).format('YYYY-MM-DD');
+  return {
+    dayBegin: new Date(dayBegin + ' 00:00:00'),
+    dayEnd: new Date(dayBegin + ' 23:59:59')
+  };
+};
+
+// 根据当前时间获取当月1号0点0时0分0秒与本月最后一日号23点59分59秒
+const getMonth = (date = Date.now()) => {
+  const monthBegin = moment(date).format('YYYY-MM');
+  const days = moment(date).daysInMonth();
+  return {
+    monthBegin: new Date(monthBegin + '-01 00:00:00'),
+    monthEnd: new Date(monthBegin + `-${days} 23:59:59`)
+  };
+};
+
 export {
-  monDura
+  monDura,
+  getdate,
+  getMonth
 };

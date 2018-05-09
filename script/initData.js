@@ -11,6 +11,7 @@ import addressData from './addressData';
 import ConfigsData from './ConfigsData';
 import messageData from './messageData';
 import userMessData from './userMessData';
+import summaryData from './summaryData';
 
 // import models
 import Agent from '../api/models/Agent';
@@ -21,6 +22,7 @@ import Address from '../api/models/Address';
 import Configs from '../api/models/Configs';
 import Message from '../api/models/Message';
 import UserMessage from '../api/models/UserMessage';
+import Summary from '../api/models/Summary';
 
 // init mongoose
 mongoose.Promise = global.Promise;
@@ -61,6 +63,10 @@ async function initDb () {
   for (let userMess of userMessData) {
     const newUserMess = new UserMessage(userMess);
     await newUserMess.save();
+  }
+  for (let summary of summaryData) {
+    const newSummary = new Summary(summary);
+    await newSummary.save();
   }
 }
 

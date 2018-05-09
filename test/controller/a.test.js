@@ -12,6 +12,7 @@ import orderData from '../../script/orderData';
 import ConfigsData from '../../script/ConfigsData';
 import messageData from '../../script/messageData';
 import userMessData from '../../script/userMessData';
+import summaryData from '../../script/summaryData';
 
 // import models
 import Agent from '../../api/models/Agent';
@@ -64,11 +65,20 @@ describe('initDb', () => {
       const newUserMess = new UserMessage(userMess);
       await newUserMess.save();
     }
+    for (let summary of summaryData) {
+      const newSummary = new Summary(summary);
+      await newSummary.save();
+    }
   });
   it('Schedule: daySummary', async () => {
     await daySummary();
     const summNum = await Summary.count({});
     const userNum = await User.count({});
-    assert(summNum === userNum);
+    assert(summNum === userNum * 2);
+
+    // 再生成一次都会跳过
+    await daySummary();
+    const newSummNum = await Summary.count({});
+    assert(summNum === newSummNum);
   });
 });
