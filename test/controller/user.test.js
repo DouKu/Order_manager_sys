@@ -97,6 +97,14 @@ describe('Controller: user', () => {
     lockUser = await User.findById('5ae0583e88c08266d47c4014');
     assert(lockUser.isLock === false);
   });
+  it('Action: getBubordinate', async () => {
+    let result = await request
+      .get('/api/auth/subUser/5ae0583e88c08266d47c4012')
+      .set({ Authorization: `Bearer ${user.body.token}` })
+      .expect(200);
+
+    assert(result.body.code === 200);
+  });
   it('Action: listUser', async () => {
     let result = await request
       .post('/api/mana/user/list')

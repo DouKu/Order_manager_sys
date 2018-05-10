@@ -8,6 +8,8 @@ import UserMessage from '../models/UserMessage';
 import Config from '../models/Configs';
 import LevelUp from '../models/Levelup';
 import Summary from '../models/Summary';
+import MSummary from '../models/Msummary';
+import YSummary from '../models/Ysummary';
 import { signToken } from '../service/base';
 import { toObjectId } from '../service/toObjectId';
 import { addMessage } from '../service/message';
@@ -102,16 +104,27 @@ const register = async ctx => {
   });
   await userMessage.save();
 
-  // 生成日度统计表
+  // 生成三个统计表
   const summary = new Summary({
     user: user._id,
-    goods: 0,
+    goods: [],
     createAt: Date.now()
   });
   await summary.save();
 
-  // 生成月度统计表
-  // const mSummary =
+  const msummary = new MSummary({
+    user: user._id,
+    goods: [],
+    createAt: Date.now()
+  });
+  await msummary.save();
+
+  const ysummary = new YSummary({
+    user: user._id,
+    goods: [],
+    createAt: Date.now()
+  });
+  await ysummary.save();
 
   // 生成推荐人信息
   if (recommendUser) {
@@ -156,9 +169,17 @@ const getBubordinate = async ctx => {
   let data = await User.find({ managerId: toObjectId(userId) });
   data = _.chain(data)
     .map(o => {
-      _.omit(o,
-        ['password', 'managerId', 'appSecret', 'isManager', 'isLock', 'isActive']
-      );
+      return {
+        level: o.level,
+        createAt: o.createAt,
+        expiredAt: o.expiredAt,
+        phoneNumber: o.phoneNumber,
+        realName: o.realName,
+        nickname: o.nickname,
+        idCard: o.idCard,
+        managerId: o.managerId,
+        id: o.id
+      };
     })
     .value();
   ctx.body = {
@@ -356,13 +377,27 @@ const newUser = async ctx => {
   });
   await userMessage.save();
 
-  // 生成日度统计表
+  // 生成三个统计表
   const summary = new Summary({
     user: user._id,
-    goods: 0,
+    goods: [],
     createAt: Date.now()
   });
   await summary.save();
+
+  const msummary = new MSummary({
+    user: user._id,
+    goods: [],
+    createAt: Date.now()
+  });
+  await msummary.save();
+
+  const ysummary = new YSummary({
+    user: user._id,
+    goods: [],
+    createAt: Date.now()
+  });
+  await ysummary.save();
 
   ctx.body = {
     code: 200,

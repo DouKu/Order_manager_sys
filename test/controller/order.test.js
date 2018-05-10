@@ -38,6 +38,11 @@ describe('Controller: Order', () => {
     let result = await request
       .post('/api/auth/order/checkOrder')
       .set({ Authorization: 'Bearer ' + user2.body.token })
+      .send({
+        page: 1,
+        limit: 20,
+        conditions: {}
+      })
       .expect(200);
 
     assert(result.body.data.length > 0);
@@ -48,8 +53,12 @@ describe('Controller: Order', () => {
       .post('/api/auth/order/checkOrder')
       .set({ Authorization: 'Bearer ' + user2.body.token })
       .send({
-        endDate,
-        state: 8
+        page: 1,
+        limit: 20,
+        conditions: {
+          endDate,
+          state: 8
+        }
       })
       .expect(200);
 
@@ -67,10 +76,16 @@ describe('Controller: Order', () => {
     let result = await request
       .post('/api/auth/order/checkBill')
       .set({ Authorization: 'Bearer ' + login.body.token })
+      .send({
+        page: 1,
+        limit: 3,
+        conditions: {}
+      })
       .expect(200);
 
     assert(result.body.data.length > 0);
     assert(result.body.data.length < orderData.length);
+    assert(result.body.count >= result.body.data.length);
   });
   it('Action: addOrder', async () => {
     let user2 = await request

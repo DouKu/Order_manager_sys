@@ -4,6 +4,7 @@ import {
   register,
   getUserInfo,
   lockUser,
+  getBubordinate,
   listUser,
   newUser,
   levelUp,
@@ -22,6 +23,8 @@ module.exports = (router, authRouter, commonRouter, managerRouter) => {
   authRouter.get('/user', getUserInfo);
   // 封号（解封）
   managerRouter.put('/user/:userId', lockUser);
+  // 获取下级信息
+  authRouter.get('/subUser/:userId', getBubordinate);
   // 用户列表
   managerRouter.post('/user/list', listUser);
   // 添加账号

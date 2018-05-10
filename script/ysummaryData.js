@@ -57,5 +57,29 @@ export default [
     'goodsNum': 0,
     'sumPrice': 0,
     'createAt': new Date('2017-01-01')
+  },
+  {
+    '_id': toObjectId('5af3e2f1e043c6708d188e29'),
+    'goodsNum': 6,
+    'sumPrice': 156,
+    'user': toObjectId('5ae0583e88c08266d47c4010'),
+    'goods': [
+      {
+        '_id': toObjectId('5af3e2f2e043c6708d188e55'),
+        'name': 'test',
+        'num': 2
+      },
+      {
+        '_id': toObjectId('5af3e2f2e043c6708d188e54'),
+        'name': 'test1',
+        'num': 2
+      },
+      {
+        '_id': toObjectId('5af3e2f2e043c6708d188e53'),
+        'name': 'test2',
+        'num': 2
+      }
+    ],
+    'createAt': Date.now()
   }
 ];

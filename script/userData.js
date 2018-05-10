@@ -3,6 +3,7 @@ export default [
   {
     '_id': toObjectId('5ae0583e88c08266d47c4009'),
     'isManager': true,
+    'isActive': true,
     'appSecret': 'baefa72e7976b83f3347c309bf8fdb715093e25e1b215465a518bb7b73adad61',
     'createAt': Date.now(),
     'expiredAt': new Date('2222-01-01'),
@@ -16,6 +17,7 @@ export default [
   }, {
     '_id': toObjectId('5ae0583e88c08266d47c4010'),
     'isManager': false,
+    'isActive': true,
     'appSecret': 'baefa72e7976b83f3347c309bf8fdb715097e25e1b215465a518bb7b73adad61',
     'createAt': Date.now(),
     'expiredAt': new Date('2222-01-01'),
@@ -30,6 +32,7 @@ export default [
   }, {
     '_id': toObjectId('5ae0583e88c08266d47c4011'),
     'isManager': false,
+    'isActive': true,
     'appSecret': 'baefa72e7976b83f3147c309bf8fdb715093e25e1b215465a518bb7b73adad61',
     'createAt': Date.now(),
     'expiredAt': new Date('2222-01-01'),
@@ -44,6 +47,7 @@ export default [
   }, {
     '_id': toObjectId('5ae0583e88c08266d47c4012'),
     'isManager': false,
+    'isActive': true,
     'appSecret': 'baefa72e7976183f3147c309bf8fdb715093e25e1b215465a518bb7b73adad61',
     'createAt': Date.now(),
     'expiredAt': new Date('2222-01-01'),
@@ -58,6 +62,7 @@ export default [
   }, {
     '_id': toObjectId('5ae0583e88c08266d47c4013'),
     'isManager': false,
+    'isActive': true,
     'appSecret': 'baefa72e7976183f3147c309bf8fdb715093e25e1b215465a518bb7b73adad61',
     'createAt': Date.now(),
     'expiredAt': new Date('2222-01-01'),
@@ -72,6 +77,7 @@ export default [
   }, {
     '_id': toObjectId('5ae0583e88c08266d47c4014'),
     'isManager': false,
+    'isActive': true,
     'appSecret': 'baefa72e7976183f3147c809bf8fdb715093e25e1b215465a518bb7b73adad61',
     'createAt': Date.now(),
     'expiredAt': new Date('2222-01-01'),

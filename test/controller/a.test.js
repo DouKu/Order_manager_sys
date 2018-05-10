@@ -1,6 +1,8 @@
 import mongoose from 'mongoose';
 import assert from 'power-assert';
 import daySummary from '../../api/schedule/daySummary';
+import monthSummary from '../../api/schedule/monthSummary';
+import yearSummary from '../../api/schedule/yearSummary';
 
 // import data
 import agentData from '../../script/agentData';
@@ -83,14 +85,33 @@ describe('initDb', () => {
     }
   });
   it('Schedule: daySummary', async () => {
+    // 日度统计
     await daySummary();
-    const summNum = await Summary.count({});
-    const userNum = await User.count({});
+    let summNum = await Summary.count({});
+    let userNum = await User.count({});
     assert(summNum === userNum * 2);
 
     // 再生成一次都会跳过
     await daySummary();
-    const newSummNum = await Summary.count({});
+    let newSummNum = await Summary.count({});
+    assert(summNum === newSummNum);
+
+    // 月度统计
+    await monthSummary();
+    summNum = await MSummary.count({});
+    assert(summNum === userNum * 2);
+    // 再生成一次会跳过
+    await monthSummary();
+    newSummNum = await MSummary.count({});
+    assert(summNum === newSummNum);
+
+    // 年度统计
+    await yearSummary();
+    summNum = await YSummary.count({});
+    assert(summNum === userNum * 2);
+    // 再生成一次会跳过
+    await yearSummary();
+    newSummNum = await YSummary.count({});
     assert(summNum === newSummNum);
   });
 });

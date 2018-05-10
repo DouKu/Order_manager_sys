@@ -10,51 +10,89 @@ import { addSummary } from '../service/summary';
 // 查看我的下单(需要时间范围,分页)
 const checkMyOrder = async ctx => {
   ctx.verifyParams({
-
-    beginDate: { type: 'datetime', required: false },
-    endDate: { type: 'datetime', required: false },
-    state: { type: 'int', required: false }
+    page: 'int',
+    limit: 'int',
+    conditions: {
+      type: 'object',
+      rule: {
+        beginDate: { type: 'datetime', required: false },
+        endDate: { type: 'datetime', required: false },
+        state: { type: 'int', required: false }
+      }
+    }
   });
-  const body = ctx.request.body;
+  const page = ctx.request.body.page;
+  const limit = ctx.request.body.limit;
+
+  let conditions = ctx.request.body.conditions;
   // 时间范围默认为一个月
-  body.endDate = body.endDate || Date.now();
-  body.beginDate = body.beginDate || moment(body.endDate).subtract(1, 'months').format();
-  const conditions = _.omit(body, ['beginDate', 'endDate']);
+  const endDate = conditions.endDate || Date.now();
+  const beginDate = conditions.beginDate ||
+    moment(endDate).subtract(1, 'months').format();
+
+  conditions = _.omit(conditions, ['beginDate', 'endDate']);
   conditions.fromUser = toObjectId(ctx.state.userMess.id);
+
+  const skip = (page - 1) * limit;
   const result = await Order
     .find(conditions)
-    .where('createAt').gte(body.beginDate).lte(body.endDate)
+    .where('createAt').gte(beginDate).lte(endDate)
     .populate('toUser', 'realName avatar level')
-    .sort({ createAt: -1 });
+    .sort({ createAt: -1 })
+    .skip(skip)
+    .limit(limit);
 
+  const count = await Order.count(conditions)
+    .where('createAt').gte(beginDate).lte(endDate);
   ctx.body = {
     code: 200,
-    data: result
+    data: result,
+    count
   };
 };
 
 // 查看我的订单(需要时间范围,分页)
 const checkMyBill = async ctx => {
   ctx.verifyParams({
-    beginDate: { type: 'datetime', required: false },
-    endDate: { type: 'datetime', required: false },
-    state: { type: 'int', required: false }
+    page: 'int',
+    limit: 'int',
+    conditions: {
+      type: 'object',
+      rule: {
+        beginDate: { type: 'datetime', required: false },
+        endDate: { type: 'datetime', required: false },
+        state: { type: 'int', required: false }
+      }
+    }
   });
-  const body = ctx.request.body;
+  const page = ctx.request.body.page;
+  const limit = ctx.request.body.limit;
+
+  let conditions = ctx.request.body.conditions;
   // 时间范围默认为一个月
-  body.endDate = body.endDate || Date.now();
-  body.beginDate = body.beginDate || moment().subtract(1, 'months').format();
-  const conditions = _.omit(body, ['beginDate', 'endDate']);
+  const endDate = conditions.endDate || Date.now();
+  const beginDate = conditions.beginDate ||
+    moment(endDate).subtract(1, 'months').format();
+
+  conditions = _.omit(conditions, ['beginDate', 'endDate']);
   conditions.toUser = toObjectId(ctx.state.userMess.id);
+
+  const skip = (page - 1) * limit;
   const result = await Order
     .find(conditions)
-    .where('createAt').gte(body.beginDate).lte(body.endDate)
+    .where('createAt').gte(beginDate).lte(endDate)
     .populate('fromUser', 'realName avatar level')
-    .sort({ createAt: -1 });
+    .sort({ createAt: -1 })
+    .skip(skip)
+    .limit(limit);
+
+  const count = await Order.count(conditions)
+    .where('createAt').gte(beginDate).lte(endDate);
 
   ctx.body = {
     code: 200,
-    data: result
+    data: result,
+    count
   };
 };
 
