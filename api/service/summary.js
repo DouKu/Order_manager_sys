@@ -1,17 +1,16 @@
 'use strict';
 import _ from 'lodash';
 import Summary from '../models/Summary';
-import { getdate } from './countDate';
+import MSummary from '../models/Msummary';
+import YSummary from '../models/Ysummary';
+import { getdate, getMonth, getYear } from './countDate';
 
-// 添加到日统计表
-const addSummary = async (order) => {
-  // 商品
-  const goods = order.goods;
-  const date = getdate();
-  const summary = await Summary.findOne({ user: order.toUser })
-    .where('createAt').gte(date.dayBegin).lte(date.dayEnd);
-
-  // 添加商品名到集合
+/**
+ * 商品归类与数量统计
+ * @param {Array} goods // 订单商品
+ * @param {Object} summary // 统计表对象
+ */
+function countGoods (goods, summary) {
   const goodSet = new Set();
   for (let good of goods) {
     goodSet.add(good.name);
@@ -41,9 +40,48 @@ const addSummary = async (order) => {
     goodsNum += data.num;
   }
 
-  await Summary.findByIdAndUpdate(summary.id,
-    { goods: upGoods, goodsNum, sumPrice: summary.sumPrice + order.sumPrice }
-  );
+  return {
+    upGoods,
+    goodsNum
+  };
+}
+
+// 添加到日统计表
+const addSummary = async (order) => {
+  // 商品
+  const goods = order.goods;
+  let date = getdate();
+  const dsummary = await Summary.findOne({ user: order.toUser })
+    .where('createAt').gte(date.dayBegin).lte(date.dayEnd);
+
+  date = getMonth();
+  const msummary = await MSummary.findOne({ user: order.toUser })
+    .where('createAt').gte(date.monthBegin).lte(date.monthEnd);
+
+  date = getYear();
+  const ysummary = await YSummary.findOne({ user: order.toUser })
+    .where('createAt').gte(date.yearBegin).lte(date.yearEnd);
+
+  let goodDeel = countGoods(goods, dsummary);
+  await Summary.findByIdAndUpdate(dsummary.id, {
+    goods: goodDeel.upGoods,
+    goodsNum: goodDeel.goodsNum,
+    sumPrice: dsummary.sumPrice + order.sumPrice
+  });
+
+  goodDeel = countGoods(goods, msummary);
+  await MSummary.findByIdAndUpdate(msummary.id, {
+    goods: goodDeel.upGoods,
+    goodsNum: goodDeel.goodsNum,
+    sumPrice: msummary.sumPrice + order.sumPrice
+  });
+
+  goodDeel = countGoods(goods, ysummary);
+  await YSummary.findByIdAndUpdate(ysummary.id, {
+    goods: goodDeel.upGoods,
+    goodsNum: goodDeel.goodsNum,
+    sumPrice: ysummary.sumPrice + order.sumPrice
+  });
 };
 
 export {

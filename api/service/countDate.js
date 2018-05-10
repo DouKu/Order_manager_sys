@@ -24,8 +24,18 @@ const getMonth = (date = Date.now()) => {
   };
 };
 
+// 根据时间获取年份1号0点0时0分0秒与本年最后一日 23点59分59秒
+const getYear = (date = Date.now()) => {
+  const year = moment(date).format('YYYY');
+  return {
+    yearBegin: new Date(year + '-01-01 00:00:00'),
+    yearEnd: new Date(year + '-12-31 23:59:59')
+  };
+};
+
 export {
   monDura,
   getdate,
-  getMonth
+  getMonth,
+  getYear
 };

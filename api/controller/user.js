@@ -170,9 +170,11 @@ const getBubordinate = async ctx => {
 // 等级提升申请
 const levelUp = async ctx => {
   ctx.verifyParams({
-    level: 'int'
+    level: 'int',
+    screenshots: 'string'
   });
   const level = ctx.request.body.level;
+  const screenshots = ctx.request.body.screenshots;
   // 找出是否存在待处理的升级请求
   const upCheck = await LevelUp.findOne({
     applyUser: ctx.state.userMess.id,
@@ -189,6 +191,7 @@ const levelUp = async ctx => {
     applyUser: ctx.state.userMess.id,
     toUser: ctx.state.userMess.managerId,
     applyLevel: level,
+    screenshots,
     deel: 1
   });
   const agents = await Agent.find();
@@ -421,6 +424,7 @@ const listLevel = async ctx => {
         updateAt: o.updateAt,
         applyUserName: o.applyUser.realName,
         applyUserLevel: o.applyUser.level,
+        screenshots: o.screenshots,
         applyUserId: o.applyUser.id,
         deel: o.deel,
         applyLevel: o.applyLevel

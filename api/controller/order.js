@@ -10,6 +10,7 @@ import { addSummary } from '../service/summary';
 // 查看我的下单(需要时间范围,分页)
 const checkMyOrder = async ctx => {
   ctx.verifyParams({
+
     beginDate: { type: 'datetime', required: false },
     endDate: { type: 'datetime', required: false },
     state: { type: 'int', required: false }

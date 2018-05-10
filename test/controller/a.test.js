@@ -13,6 +13,8 @@ import ConfigsData from '../../script/ConfigsData';
 import messageData from '../../script/messageData';
 import userMessData from '../../script/userMessData';
 import summaryData from '../../script/summaryData';
+import msummaryData from '../../script/msummaryData';
+import ysummaryData from '../../script/ysummaryData';
 
 // import models
 import Agent from '../../api/models/Agent';
@@ -25,6 +27,8 @@ import Configs from '../../api/models/Configs';
 import Message from '../../api/models/Message';
 import UserMessage from '../../api/models/UserMessage';
 import Summary from '../../api/models/Summary';
+import MSummary from '../../api/models/Msummary';
+import YSummary from '../../api/models/Ysummary';
 
 describe('initDb', () => {
   mongoose.connection.dropDatabase();
@@ -67,6 +71,14 @@ describe('initDb', () => {
     }
     for (let summary of summaryData) {
       const newSummary = new Summary(summary);
+      await newSummary.save();
+    }
+    for (let summary of msummaryData) {
+      const newSummary = new MSummary(summary);
+      await newSummary.save();
+    }
+    for (let summary of ysummaryData) {
+      const newSummary = new YSummary(summary);
       await newSummary.save();
     }
   });

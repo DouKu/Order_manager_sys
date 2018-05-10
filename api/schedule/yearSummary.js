@@ -1,19 +1,19 @@
 'use strict';
 import User from '../models/User';
-import MSummary from '../models/Msummary';
-import { getMonth } from '../service/countDate';
+import YSummary from '../models/Ysummary';
+import { getYear } from '../service/countDate';
 
 export default async () => {
   try {
     const users = await User.find({});
-    const { monthBegin, monthEnd } = getMonth();
+    const { yearBegin, yearEnd } = getYear();
     for (let user of users) {
-      const check = await MSummary.findOne({ user: user.id })
-        .where('createAt').gte(monthBegin).lte(monthEnd);
+      const check = await YSummary.findOne({ user: user.id })
+        .where('createAt').gte(yearBegin).lte(yearEnd);
       if (check) {
         continue;
       }
-      const summary = new MSummary({
+      const summary = new YSummary({
         user: user.id,
         goods: [],
         createAt: Date.now()

@@ -200,7 +200,8 @@ describe('Controller: user', () => {
       .post('/api/auth/level')
       .set({ Authorization: 'Bearer ' + login.body.token })
       .send({
-        level: 6
+        level: 6,
+        screenshots: 'laksdjflkasjdfl'
       })
       .expect(200);
     assert(result.body.code === 400);
@@ -209,7 +210,8 @@ describe('Controller: user', () => {
       .post('/api/auth/level')
       .set({ Authorization: 'Bearer ' + login.body.token })
       .send({
-        level: 5
+        level: 5,
+        screenshots: 'laksdjflkasjdfl'
       })
       .expect(200);
     assert(result.body.code === 200);
@@ -218,7 +220,8 @@ describe('Controller: user', () => {
       .post('/api/auth/level')
       .set({ Authorization: 'Bearer ' + login.body.token })
       .send({
-        level: 5
+        level: 5,
+        screenshots: 'laksdjflkasjdfl'
       })
       .expect(200);
     assert(result.body.code === 400);
