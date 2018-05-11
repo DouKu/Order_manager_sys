@@ -33,7 +33,6 @@ describe('Controller: user', () => {
         password: newMessage,
         realName: newMessage,
         idCard: idCard,
-        managerId: manager.id,
         recommendId: manager.id
       })
       .expect(200);
@@ -51,11 +50,22 @@ describe('Controller: user', () => {
         password: newMessage,
         realName: newMessage,
         idCard: idCard,
-        managerId: manager.id,
         recommendId: manager.id
       })
       .expect(200);
     assert(result.body.code === 400);
+  });
+  it('Action: activeAccount', async () => {
+    let result = await request
+      .post('/api/v1/register')
+      .send({
+        phoneNumber: '3472747272',
+        password: '123456789',
+        realName: '新开账号123',
+        idCard: '4641241234678544442',
+        recommendId: ''
+      })
+      .expect(200);
   });
   it('Action: getUserInfo', async () => {
     const login = await request

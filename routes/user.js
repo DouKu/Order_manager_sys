@@ -2,6 +2,7 @@
 import {
   login,
   register,
+  activeAccount,
   getUserInfo,
   lockUser,
   getBubordinate,
@@ -19,6 +20,8 @@ module.exports = (router, authRouter, commonRouter, managerRouter) => {
   commonRouter.post('/login', login);
   // 注册
   commonRouter.post('/register', register);
+  // 激活账号
+  authRouter.get('/user/active', activeAccount);
   // 获取当前用户信息
   authRouter.get('/user', getUserInfo);
   // 封号（解封）

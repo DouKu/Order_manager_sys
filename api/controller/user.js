@@ -13,6 +13,7 @@ import YSummary from '../models/Ysummary';
 import { signToken } from '../service/base';
 import { toObjectId } from '../service/toObjectId';
 import { addMessage } from '../service/message';
+import { sendLevelUpMess } from '../service/levelUp';
 
 // 登录
 const login = async ctx => {
@@ -59,7 +60,7 @@ const register = async ctx => {
     password: 'string',
     realName: 'string',
     idCard: 'string',
-    recommendId: { type: 'string', required: false }
+    recommendId: 'string'
   });
   const body = ctx.request.body;
   // 检查用户
@@ -141,6 +142,41 @@ const register = async ctx => {
   };
 };
 
+// 激活账号
+const activeAccount = async ctx => {
+  if (ctx.state.userMess.isActive) {
+    ctx.throw(400, '您的账号已经激活了');
+  }
+  ctx.verifyParams({
+    level: 'int',
+    screenshots: 'string'
+  });
+  const level = ctx.request.body.level;
+  const screenshots = ctx.request.body.screenshots;
+  // 找出是否存在待处理的升级请求
+  const upCheck = await LevelUp.findOne({
+    applyUser: ctx.state.userMess.id,
+    deel: 1
+  });
+  if (upCheck) {
+    ctx.throw(400, '您有待处理的等级申请不能申请多次!');
+  }
+
+  const newUp = new LevelUp({
+    applyUser: ctx.state.userMess.id,
+    toUser: ctx.state.userMess.managerId,
+    type: 2,
+    applyLevel: level,
+    screenshots,
+    deel: 1
+  });
+  await newUp.save();
+  ctx.body = {
+    code: 200,
+    msg: '激活申请以提交，请等待管理员处理结果。'
+  };
+};
+
 // 个人详细信息
 const getUserInfo = async ctx => {
   const agents = await Agent.find();
@@ -149,7 +185,7 @@ const getUserInfo = async ctx => {
   const nowUser = ctx.state.userMess;
   const result = _.omit(
     nowUser,
-    ['password', 'managerId', 'appSecret', 'isManager', 'isLock', 'isActive']
+    ['password', 'managerId', 'appSecret', 'isManager', 'isLock']
   );
   const userAgent = _.filter(agents, ['level', result.level])[0];
   result.agent = userAgent.des;
@@ -211,6 +247,7 @@ const levelUp = async ctx => {
   const newUp = new LevelUp({
     applyUser: ctx.state.userMess.id,
     toUser: ctx.state.userMess.managerId,
+    type: 1,
     applyLevel: level,
     screenshots,
     deel: 1
@@ -234,7 +271,7 @@ const levelUp = async ctx => {
 
 // 查看本人代理记录
 const checkLevel = async ctx => {
-  const data = await LevelUp.find({ applyUser: ctx.state.userMess.id });
+  let data = await LevelUp.find({ applyUser: ctx.state.userMess.id });
   ctx.body = {
     code: 200,
     data
@@ -243,7 +280,21 @@ const checkLevel = async ctx => {
 
 // 查看下级代理记录
 const checkSubLevel = async ctx => {
-  const data = await LevelUp.find({ toUser: ctx.state.userMess.id });
+  let data = await LevelUp.find({ toUser: ctx.state.userMess.id })
+    .populate('applyUser', 'realName');
+
+  data = _.chain(data)
+    .map(o => {
+      return {
+        applyUser: o.applyUser.realName,
+        applyUserId: o.applyUser.id,
+        applyLevel: o.applyLevel,
+        deel: o.deel,
+        id: o.id,
+        createAt: o.createAt,
+        updateAt: o.updateAt
+      };
+    });
   ctx.body = {
     code: 200,
     data
@@ -416,7 +467,8 @@ const listLevel = async ctx => {
         beginDate: { type: 'datetime', required: false },
         endDate: { type: 'datetime', required: false },
         deel: { type: 'int', required: false },
-        applyUser: { type: 'string', required: false }
+        applyUser: { type: 'string', required: false },
+        type: { type: 'int', required: false }
       }
     },
     sort: {
@@ -435,10 +487,9 @@ const listLevel = async ctx => {
     conditions.applyUser = toObjectId(conditions.applyUser);
   }
   const sort = Object.assign({
+    type: -1,
     deel: 1,
-    applyLevel: 1,
-    createAt: -1,
-    updateAt: -1
+    createAt: -1
   }, body.sort);
 
   let data = await LevelUp.find(conditions)
@@ -481,39 +532,34 @@ const deelLevelCheck = async ctx => {
   const levelId = ctx.params.levelId;
   const deel = ctx.request.body.deel;
   const agents = await Agent.find();
+  let levelMess = null;
+  let userAgent = null;
   if (deel === 2) {
     // 同意升级，修改申请信息
-    const levelMess = await LevelUp.findByIdAndUpdate(levelId,
+    levelMess = await LevelUp.findByIdAndUpdate(levelId,
       { deel: 2, updateAt: Date.now() }
     );
-    const userAgent = _.filter(agents, ['level', levelMess.applyLevel])[0];
+    userAgent = _.filter(agents, ['level', levelMess.applyLevel])[0];
     // 升级用户
-    await User.findByIdAndUpdate(levelMess.applyUser, { level: levelMess.applyLevel });
-    // 发送通知
-    const mess = {
-      type: 2,
-      fromUser: ctx.state.userMess.id,
-      toUser: levelMess.applyUser,
-      title: '升级申请审核',
-      message: `您的${userAgent.des}升级申请以被同意，恭喜您经成为${userAgent.des}！`
-    };
-    await addMessage(mess);
+    await User.findByIdAndUpdate(levelMess.applyUser, {
+      level: levelMess.applyLevel,
+      isActive: true
+    });
   } else if (deel === 3) {
     // 拒绝升级，修改申请
-    const levelMess = await LevelUp.findByIdAndUpdate(levelId,
+    levelMess = await LevelUp.findByIdAndUpdate(levelId,
       { deel: 3, updateAt: Date.now() }
     );
-    const userAgent = _.filter(agents, ['level', levelMess.applyLevel])[0];
-    // 发送消息
-    const mess = {
-      type: 2,
-      fromUser: ctx.state.userMess.id,
-      toUser: levelMess.applyUser,
-      title: '升级申请审核',
-      message: `您的${userAgent.des}升级申请被管理员拒绝，请继续努力！`
-    };
-    await addMessage(mess);
+    userAgent = _.filter(agents, ['level', levelMess.applyLevel])[0];
   }
+  // 按照申请类别发送通知
+  await sendLevelUpMess(
+    deel,
+    levelMess.type,
+    ctx.state.userMess.id,
+    levelMess.applyUser,
+    userAgent
+  );
   ctx.body = {
     code: 200,
     msg: '审核成功!'
@@ -523,6 +569,7 @@ const deelLevelCheck = async ctx => {
 export {
   login,
   register,
+  activeAccount,
   getUserInfo,
   getBubordinate,
   lockUser,

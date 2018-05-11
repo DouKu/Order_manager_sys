@@ -19,7 +19,7 @@ const UserSchema = new Schema({
     minlength: 18,
     maxlength: 18
   }, // 身份证
-  level: { type: Number, required: true, default: 5 }, // 用户代理等级
+  level: { type: Number, required: true, default: 100 }, // 用户代理等级
   avatar: { type: String }, // 头像
   sign: { type: String }, // 个性签名
   managerId: { type: ObjectId, ref: 'User' }, // 上级id
