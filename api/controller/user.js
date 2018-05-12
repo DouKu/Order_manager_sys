@@ -10,6 +10,7 @@ import LevelUp from '../models/Levelup';
 import Summary from '../models/Summary';
 import MSummary from '../models/Msummary';
 import YSummary from '../models/Ysummary';
+import VCode from '../models/VerificationCode';
 import { signToken } from '../service/base';
 import { toObjectId } from '../service/toObjectId';
 import { addMessage } from '../service/message';
@@ -49,8 +50,47 @@ const login = async ctx => {
   ctx.body = {
     code: 200,
     msg: '登录成功!',
-    token: token
+    token: token,
+    isActive: user.isActive
   };
+};
+
+// 电话登录
+const phoneLogin = async ctx => {
+  ctx.verifyParams({
+    phoneNumber: 'string',
+    code: 'string',
+    target: 'int'
+  });
+  const body = ctx.request.body;
+  const user = await User.findOne({ phoneNumber: body.phoneNumber });
+  // 查看用户状态
+  if (!user) {
+    ctx.throw(423, '用户不存在');
+  } else if (user.isLock) {
+    ctx.throw(400, '您的以被封号请联系管理员');
+  } else if (user.expiredAt < Date.now()) {
+    ctx.throw(400, '您的账号已过期请联系管理员');
+  }
+  // 验证短信
+  const result = await VCode.updateOne({
+    phone: body.phoneNumber,
+    code: body.code
+  }, { use: true });
+  if (result.nModified >= 1) {
+    const token = signToken(user);
+    ctx.body = {
+      code: 200,
+      msg: '登录成功!',
+      token: token,
+      isActive: user.isActive
+    };
+  } else {
+    ctx.body = {
+      code: 400,
+      msg: '验证码不正确!'
+    };
+  }
 };
 
 // 注册
@@ -164,7 +204,6 @@ const activeAccount = async ctx => {
 
   const newUp = new LevelUp({
     applyUser: ctx.state.userMess.id,
-    toUser: ctx.state.userMess.managerId,
     type: 2,
     applyLevel: level,
     screenshots,
@@ -187,8 +226,13 @@ const getUserInfo = async ctx => {
     nowUser,
     ['password', 'managerId', 'appSecret', 'isManager', 'isLock']
   );
-  const userAgent = _.filter(agents, ['level', result.level])[0];
-  result.agent = userAgent.des;
+  // 等级划分
+  if (result.level > 20) {
+    result.agent = '代理未激活';
+  } else {
+    const userAgent = _.filter(agents, ['level', result.level])[0];
+    result.agent = userAgent.des;
+  }
   result.messageUnRead = mess.messages.length;
   if (manager) {
     result.manager = manager.realName;
@@ -202,9 +246,12 @@ const getUserInfo = async ctx => {
 // 根据id获取下属详细信息
 const getBubordinate = async ctx => {
   const userId = ctx.params.userId;
-  let data = await User.find({ managerId: toObjectId(userId) });
+  let data = await User.find({ managerId: toObjectId(userId) })
+    .populate('managerId', 'realName');
   data = _.chain(data)
     .map(o => {
+      let manager = o.managerId.realName ? o.managerId.realName : '无';
+      let managerId = o.managerId.id ? o.managerId.id : null;
       return {
         level: o.level,
         createAt: o.createAt,
@@ -213,7 +260,8 @@ const getBubordinate = async ctx => {
         realName: o.realName,
         nickname: o.nickname,
         idCard: o.idCard,
-        managerId: o.managerId,
+        manager,
+        managerId,
         id: o.id
       };
     })
@@ -568,6 +616,7 @@ const deelLevelCheck = async ctx => {
 
 export {
   login,
+  phoneLogin,
   register,
   activeAccount,
   getUserInfo,

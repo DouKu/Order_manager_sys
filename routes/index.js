@@ -46,6 +46,7 @@ require('./configs')(router, authRouter, commonRouter, managerRouter);
 require('./public')(router, authRouter, commonRouter, managerRouter);
 require('./message')(router, authRouter, commonRouter, managerRouter);
 require('./summary')(router, authRouter, commonRouter, managerRouter);
+require('./vcode')(router, authRouter, commonRouter, managerRouter);
 
 /** 整合路由 */
 router.use(commonRouter.routes(), commonRouter.allowedMethods());

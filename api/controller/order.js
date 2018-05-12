@@ -168,7 +168,7 @@ const markOrder = async ctx => {
     body,
     { new: true }
   );
-  const Im = orderIm(ctx.state.userMess, body.state, orderMessage);
+  const Im = orderIm(ctx.state.userMess, orderMessage.state, body.state, orderMessage);
   await addMessage(Im);
   // 交易完成生成统计表
   if (body.state === 5) {

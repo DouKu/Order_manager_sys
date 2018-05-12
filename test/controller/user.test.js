@@ -55,17 +55,64 @@ describe('Controller: user', () => {
       .expect(200);
     assert(result.body.code === 400);
   });
-  it('Action: activeAccount', async () => {
+  it('Action: phoneLogin', async () => {
     let result = await request
+      .post('/api/v1/plogin')
+      .send({
+        phoneNumber: '123456789',
+        code: '123456',
+        target: 2
+      })
+      .expect(200);
+
+    assert(result.body.code === 200);
+  });
+  it('Action: activeAccount', async () => {
+    let register = await request
       .post('/api/v1/register')
       .send({
         phoneNumber: '3472747272',
         password: '123456789',
         realName: '新开账号123',
-        idCard: '4641241234678544442',
-        recommendId: ''
+        idCard: '441552111345788951',
+        recommendId: '5ae0583e88c08266d47c4014'
       })
       .expect(200);
+
+    assert(register.body.code === 200);
+
+    let newUser = await request
+      .post('/api/v1/login')
+      .send({
+        phoneNumber: '3472747272',
+        password: '123456789',
+        target: 1
+      });
+
+    assert(newUser.body.code === 200);
+    let result = await request
+      .post('/api/auth/user/active')
+      .send({
+        level: 4,
+        screenshots: 'lskdjflksdjflk'
+      })
+      .set({ Authorization: 'Bearer ' + newUser.body.token })
+      .expect(200);
+
+    assert(result.body.code === 200);
+
+    newUser = await request
+      .get('/api/auth/user')
+      .set({ Authorization: 'Bearer ' + newUser.body.token })
+      .expect(200);
+
+    assert(newUser.body.code === 200);
+
+    newUser = newUser.body.data;
+
+    const newLevelUp = await LevelUp.findOne({ applyUser: toObjectId(newUser.id) });
+
+    assert(newLevelUp.type === 2);
   });
   it('Action: getUserInfo', async () => {
     const login = await request
@@ -129,7 +176,6 @@ describe('Controller: user', () => {
       })
       .expect(200);
 
-    assert(result.body.data.length === 7);
     assert(result.body.data[0].level > result.body.data[1].level);
 
     result = await request

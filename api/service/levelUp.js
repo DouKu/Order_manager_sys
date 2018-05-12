@@ -24,7 +24,6 @@ const sendLevelUpMess = async (deel, type, fromUser, toUser, userAgent) => {
       mess.message = `您申请激活为:${userAgent.des}的申请被管理员拒绝，请联系管理员。`;
     }
   }
-  console.log(mess);
   await addMessage(mess);
 };
 

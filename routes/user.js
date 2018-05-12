@@ -1,6 +1,7 @@
 'use strict';
 import {
   login,
+  phoneLogin,
   register,
   activeAccount,
   getUserInfo,
@@ -18,10 +19,12 @@ import {
 module.exports = (router, authRouter, commonRouter, managerRouter) => {
   // 登录
   commonRouter.post('/login', login);
+  // 电话登录
+  commonRouter.post('/plogin', phoneLogin);
   // 注册
   commonRouter.post('/register', register);
   // 激活账号
-  authRouter.get('/user/active', activeAccount);
+  authRouter.post('/user/active', activeAccount);
   // 获取当前用户信息
   authRouter.get('/user', getUserInfo);
   // 封号（解封）

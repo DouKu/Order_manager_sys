@@ -3,6 +3,7 @@ import assert from 'power-assert';
 import daySummary from '../../api/schedule/daySummary';
 import monthSummary from '../../api/schedule/monthSummary';
 import yearSummary from '../../api/schedule/yearSummary';
+import deleteVcode from '../../api/schedule/deleteVcode';
 
 // import data
 import agentData from '../../script/agentData';
@@ -17,6 +18,7 @@ import userMessData from '../../script/userMessData';
 import summaryData from '../../script/summaryData';
 import msummaryData from '../../script/msummaryData';
 import ysummaryData from '../../script/ysummaryData';
+import vcodeData from '../../script/vcodeData';
 
 // import models
 import Agent from '../../api/models/Agent';
@@ -31,6 +33,7 @@ import UserMessage from '../../api/models/UserMessage';
 import Summary from '../../api/models/Summary';
 import MSummary from '../../api/models/Msummary';
 import YSummary from '../../api/models/Ysummary';
+import VCode from '../../api/models/VerificationCode';
 
 describe('initDb', () => {
   mongoose.connection.dropDatabase();
@@ -83,8 +86,12 @@ describe('initDb', () => {
       const newSummary = new YSummary(summary);
       await newSummary.save();
     }
+    for (let item of vcodeData) {
+      const newData = new VCode(item);
+      await newData.save();
+    }
   });
-  it('Schedule: daySummary', async () => {
+  it('Schedule: Summary', async () => {
     // 日度统计
     await daySummary();
     let summNum = await Summary.count({});
@@ -113,5 +120,11 @@ describe('initDb', () => {
     await yearSummary();
     newSummNum = await YSummary.count({});
     assert(summNum === newSummNum);
+  });
+  it('Schedule: deleteVcode', async () => {
+    let bigger = await VCode.count({});
+    await deleteVcode();
+    let smaller = await VCode.count({});
+    assert(bigger > smaller);
   });
 });

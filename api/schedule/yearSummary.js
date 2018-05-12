@@ -20,6 +20,7 @@ export default async () => {
       });
       await summary.save();
     }
+    console.log('yearly summary add at', new Date());
   } catch (error) {
     console.log(error.message);
   }

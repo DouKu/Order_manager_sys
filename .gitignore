@@ -4,3 +4,4 @@ config/env
 testweb
 .tmp
 /account
+/test/controller/vcode.test.js

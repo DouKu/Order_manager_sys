@@ -20,6 +20,7 @@ export default async () => {
       });
       await summary.save();
     }
+    console.log('daily summary add at', new Date());
   } catch (error) {
     console.log(error.message);
   }

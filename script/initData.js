@@ -14,6 +14,7 @@ import userMessData from './userMessData';
 import summaryData from './summaryData';
 import msummaryData from './msummaryData';
 import ysummaryData from './ysummaryData';
+import vcodeData from './vcodeData';
 
 // import models
 import Agent from '../api/models/Agent';
@@ -27,6 +28,7 @@ import UserMessage from '../api/models/UserMessage';
 import Summary from '../api/models/Summary';
 import MSummary from '../api/models/Msummary';
 import YSummary from '../api/models/Ysummary';
+import VCode from '../api/models/VerificationCode';
 
 // init mongoose
 mongoose.Promise = global.Promise;
@@ -79,6 +81,10 @@ async function initDb () {
   for (let summary of ysummaryData) {
     const newSummary = new YSummary(summary);
     await newSummary.save();
+  }
+  for (let item of vcodeData) {
+    const newData = new VCode(item);
+    await newData.save();
   }
 }
 
