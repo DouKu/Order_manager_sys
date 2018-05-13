@@ -134,6 +134,7 @@ const register = async ctx => {
     password: body.password,
     realName: body.realName,
     idCard: body.idCard,
+    recommendId: toObjectId(body.recommendId),
     expiredAt: moment().add(sysConfig.expiredMonths, 'months').format()
   });
   await user.save();

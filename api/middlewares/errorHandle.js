@@ -5,6 +5,7 @@ export default () => {
     try {
       await next();
     } catch (error) {
+      console.log(error);
       let message = error.message;
       if (error.status === 422) {
         message = error.errors;
