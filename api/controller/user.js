@@ -634,6 +634,15 @@ const deelLevelCheck = async ctx => {
       level: levelMess.applyLevel,
       isActive: true
     });
+    // 如果是激活请求，需要给用户加上上级
+    if (levelMess.type === 2) {
+      const user = await User.findById(levelMess.applyUser);
+      let manager = await User.findById(user.recommendId);
+      while (manager.level >= user.level) {
+        manager = await User.findById(manager.managerId);
+      }
+      await User.findByIdAndUpdate(user.id, { managerId: manager.id });
+    }
   } else if (deel === 3) {
     // 拒绝升级，修改申请
     levelMess = await LevelUp.findByIdAndUpdate(levelId,
