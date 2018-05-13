@@ -4,6 +4,7 @@ import {
   phoneLogin,
   register,
   changePersionMess,
+  changeManager,
   activeAccount,
   getUserInfo,
   lockUser,
@@ -36,6 +37,8 @@ module.exports = (router, authRouter, commonRouter, managerRouter) => {
   authRouter.get('/subUser/:userId', getBubordinate);
   // 用户列表
   managerRouter.post('/user/list', listUser);
+  // 修改用户上级
+  managerRouter.post('/user/manage', changeManager);
   // 添加账号
   managerRouter.post('/user', newUser);
   // 申请提升等级
