@@ -24,6 +24,7 @@ const UserSchema = new Schema({
   sign: { type: String }, // 个性签名
   qrcode: { type: String }, // 二维码
   managerId: { type: ObjectId, ref: 'User' }, // 上级id
+  recommendId: { type: ObjectId, ref: 'User' }, // 推荐人id
   isManager: { type: Boolean, default: false }, // 是否为管理员
   appSecret: { type: String, default: GetHmac() }, // token用
   isLock: { type: Boolean, default: false }, // 是否封号
