@@ -229,12 +229,20 @@ const listOrder = async ctx => {
         toUserId = o.toUser.id;
         toUserLevel = o.toUser.level;
       }
+      let fromUserName = null;
+      let fromUserId = null;
+      let fromUserLevel = null;
+      if (o.fromUser !== null) {
+        fromUserId = o.fromUser.id;
+        fromUserName = o.fromUser.realName;
+        fromUserLevel = o.fromUser.level;
+      }
       return {
         id: o.id,
         createAt: o.createAt,
-        fromUserName: o.fromUser.realName,
-        fromUserLevel: o.fromUser.level,
-        fromUserId: o.fromUser.id,
+        fromUserName,
+        fromUserLevel,
+        fromUserId,
         toUserName,
         toUserLevel,
         toUserId,
