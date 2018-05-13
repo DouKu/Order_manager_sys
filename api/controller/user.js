@@ -487,6 +487,7 @@ const newUser = async ctx => {
     }
   }
   const user = new User(body);
+  user.recommendId = user._id;
   await user.save();
   // 生成用户消息表
   const userMessage = new UserMessage({
