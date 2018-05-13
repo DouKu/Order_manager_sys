@@ -3,6 +3,7 @@ import {
   login,
   phoneLogin,
   register,
+  changePersionMess,
   activeAccount,
   getUserInfo,
   lockUser,
@@ -23,6 +24,8 @@ module.exports = (router, authRouter, commonRouter, managerRouter) => {
   commonRouter.post('/plogin', phoneLogin);
   // 注册
   commonRouter.post('/register', register);
+  // 修改个人信息
+  authRouter.put('/user/:userId', changePersionMess);
   // 激活账号
   authRouter.post('/user/active', activeAccount);
   // 获取当前用户信息

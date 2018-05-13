@@ -22,6 +22,7 @@ const UserSchema = new Schema({
   level: { type: Number, required: true, default: 100 }, // 用户代理等级
   avatar: { type: String, default: nconf.get('app').avatar }, // 头像
   sign: { type: String }, // 个性签名
+  qrcode: { type: String }, // 二维码
   managerId: { type: ObjectId, ref: 'User' }, // 上级id
   isManager: { type: Boolean, default: false }, // 是否为管理员
   appSecret: { type: String, default: GetHmac() }, // token用

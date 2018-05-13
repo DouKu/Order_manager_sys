@@ -221,15 +221,23 @@ const listOrder = async ctx => {
 
   data = _.chain(data)
     .map(o => {
+      let toUserName = null;
+      let toUserId = null;
+      let toUserLevel = null;
+      if (o.toUser !== null) {
+        toUserName = o.toUser.realName;
+        toUserId = o.toUser.id;
+        toUserLevel = o.toUser.level;
+      }
       return {
         id: o.id,
         createAt: o.createAt,
         fromUserName: o.fromUser.realName,
         fromUserLevel: o.fromUser.level,
         fromUserId: o.fromUser.id,
-        toUserName: o.toUser.realName,
-        toUserLevel: o.toUser.level,
-        toUserId: o.toUser.id,
+        toUserName,
+        toUserLevel,
+        toUserId,
         goods: o.goods,
         state: o.state,
         sumPrice: o.sumPrice,

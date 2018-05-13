@@ -182,6 +182,21 @@ const register = async ctx => {
   };
 };
 
+const changePersionMess = async ctx => {
+  ctx.verifyParams({
+    nickname: { type: 'string', required: false },
+    avatar: { type: 'string', required: false },
+    sign: { type: 'string', required: false }
+  });
+  const userId = ctx.params.userId;
+  const body = ctx.request.body;
+  await User.findByIdAndUpdate(userId, body);
+  ctx.body = {
+    code: 200,
+    msg: '个人信息修改成功!'
+  };
+};
+
 // 激活账号
 const activeAccount = async ctx => {
   if (ctx.state.userMess.isActive) {
@@ -274,6 +289,9 @@ const getBubordinate = async ctx => {
 
 // 等级提升申请
 const levelUp = async ctx => {
+  if (!ctx.state.userMess.isActive) {
+    ctx.throw(400, '请您先激活账号!');
+  }
   ctx.verifyParams({
     level: 'int',
     screenshots: 'string'
@@ -504,6 +522,29 @@ const newUser = async ctx => {
   };
 };
 
+// 修改用户上级
+const changeManager = async ctx => {
+  ctx.verifyParams({
+    userId: 'string',
+    managerId: 'string'
+  });
+  const userId = ctx.request.body.userId;
+  const managerId = ctx.request.body.managerId;
+  const manager = await User.findById(managerId);
+  const user = await User.findById(userId);
+  if (user === null || manager === null) {
+    ctx.throw(400, '用户/上级id错误');
+  }
+  if (manager.level >= user.level) {
+    ctx.throw(400, '所选上级等级不比需要修改上级的用户高，上级修改失败');
+  }
+  await User.findByIdAndUpdate(userId, { managerId: manager.id });
+  ctx.body = {
+    code: 200,
+    msg: '上级修改成功'
+  };
+};
+
 // 代理升级请求列表
 const listLevel = async ctx => {
   ctx.verifyParams({
@@ -618,6 +659,8 @@ export {
   login,
   phoneLogin,
   register,
+  changePersionMess,
+  changeManager,
   activeAccount,
   getUserInfo,
   getBubordinate,

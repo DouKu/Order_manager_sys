@@ -67,6 +67,19 @@ describe('Controller: user', () => {
 
     assert(result.body.code === 200);
   });
+  it('Action: changePersionMess', async () => {
+    let result = await request
+      .put('/api/auth/user/5ae0583e88c08266d47c4009')
+      .set({ Authorization: 'Bearer ' + user.body.token })
+      .send({
+        nickname: '超级管理员',
+        avatar: 'lasdkfjsldkfj',
+        sign: '我Tm是管理员噢'
+      })
+      .expect(200);
+
+    assert(result.body.code === 200);
+  });
   it('Action: activeAccount', async () => {
     let register = await request
       .post('/api/v1/register')
