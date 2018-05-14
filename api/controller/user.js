@@ -423,16 +423,22 @@ const listUser = async ctx => {
 
   data = _.chain(data)
     .map(o => {
-      let manager = null;
-      o.managerId ? manager = o.managerId.realName : manager = null;
+      let managerName = null;
+      let managerId = null;
+      if (o.managerId !== null) {
+        managerName = o.managerId.realName;
+        managerId = o.managerId.id;
+      }
       return {
+        id: o.id,
         phoneNumber: o.phoneNumber,
         nickname: o.nickname,
         realName: o.realName,
         idCard: o.idCard,
         level: o.level,
         avatar: o.avatar,
-        manager,
+        managerName,
+        managerId,
         isManager: o.isManager,
         isLock: o.isLock,
         isActive: o.isActive,
