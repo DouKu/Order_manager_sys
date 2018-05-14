@@ -425,7 +425,7 @@ const listUser = async ctx => {
     .map(o => {
       let managerName = null;
       let managerId = null;
-      if (o.managerId !== null && o.managerId.realName !== null) {
+      if (o.managerId) {
         managerName = o.managerId.realName;
         managerId = o.managerId.id;
       }
@@ -549,7 +549,8 @@ const changeManager = async ctx => {
   await User.findByIdAndUpdate(userId, { managerId: manager.id });
   ctx.body = {
     code: 200,
-    msg: '上级修改成功'
+    msg: '上级修改成功',
+    manager: manager.realName
   };
 };
 
