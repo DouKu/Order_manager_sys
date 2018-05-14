@@ -425,7 +425,7 @@ const listUser = async ctx => {
     .map(o => {
       let managerName = null;
       let managerId = null;
-      if (o.managerId !== null) {
+      if (o.managerId !== null && o.managerId.realName !== null) {
         managerName = o.managerId.realName;
         managerId = o.managerId.id;
       }
