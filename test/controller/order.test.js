@@ -2,8 +2,10 @@
 import { request } from '../bootstrap.test';
 import assert from 'power-assert';
 import moment from 'moment';
+import User from '../../api/models/User';
 import Order from '../../api/models/Order';
 import Goods from '../../api/models/Goods';
+import LevelUp from '../../api/models/Levelup';
 import orderData from '../../script/orderData';
 import Summary from '../../api/models/Summary';
 import _ from 'lodash';
@@ -138,7 +140,113 @@ describe('Controller: Order', () => {
     assert(newOrder.address === address.address);
     assert(afterMess > beforeMess);
 
+    // 新用户注册激活下单
+
+    await request
+      .post('/api/v1/register')
+      .send({
+        phoneNumber: '14772464747',
+        password: '123456789',
+        realName: '下单新用户',
+        idCard: '444221348585940394',
+        recommendId: '5ae0583e88c08266d47c4010'
+      })
+      .expect(200);
+    // 登录
+    const orderUserLogin = await request
+      .post('/api/v1/login')
+      .send({
+        phoneNumber: '14772464747',
+        password: '123456789',
+        target: 1
+      });
+
+    // 申请激活
+    let orderResult = await request
+      .post('/api/auth/user/active')
+      .send({
+        level: 4,
+        screenshots: 'lskdjflksdjflk'
+      })
+      .set({ Authorization: 'Bearer ' + orderUserLogin.body.token })
+      .expect(200);
+
+    assert(orderResult.body.code === 200);
+
+    // 用户信息
+    let orderUser = await User.findOne({ phoneNumber: '14772464747' });
+    // 升级申请信息
+    const orderUserLevel = await LevelUp.findOne({ user: orderUser.id });
+    // 管理员批准激活
+    orderResult = await request
+      .put('/api/mana/level/' + orderUserLevel.id)
+      .set({ Authorization: 'Bearer ' + user.body.token })
+      .send({
+        deel: 2
+      });
+    assert(orderResult.body.code === 200);
+
+    // 检测用户上级是否正确
+    orderUser = await User.findOne({ phoneNumber: '14772464747' });
+    assert(orderUser.managerId.toString() === user2.id.toString());
+    // 下单
+    await request
+      .post('/api/auth/order')
+      .set({ Authorization: 'Bearer ' + orderUserLogin.body.token })
+      .send({
+        goods: [
+          {
+            'name': 'test',
+            'price': 16,
+            'picture': 'http://oqzgtjqen.bkt.clouddn.com/1066973925.jpg',
+            'num': 2
+          },
+          {
+            'name': 'test1',
+            'price': 26,
+            'picture': 'http://oqzgtjqen.bkt.clouddn.com/1066973925.jpg',
+            'num': 2
+          },
+          {
+            'name': 'test2',
+            'price': 36,
+            'picture': 'http://oqzgtjqen.bkt.clouddn.com/1066973925.jpg',
+            'num': 2
+          }
+        ],
+        screenshots: 'lalalalla',
+        address: 'LALLALA',
+        receivePeople: 'LASKDJFLADSKJF',
+        postalCode: '000000',
+        receivePhone: '121221214443'
+      })
+      .expect(200);
+
+    let newOrder2 = await Order.findOne({ fromUser: orderUser.id });
+    assert(newOrder2 !== null);
+    // 发货
+    orderResult = await request
+      .put(`/api/auth/order/${newOrder2.id}`)
+      .set({ Authorization: 'Bearer ' + user2.body.token })
+      .send({
+        state: 4,
+        trackingNumber: '13246548'
+      })
+      .expect(200);
+
+    assert(result.body.data.state === 4);
+
+    // 确认订单
+    orderResult = await request
+      .put(`/api/auth/order/${newOrder2.id}`)
+      .set({ Authorization: 'Bearer ' + orderUserLogin.body.token })
+      .send({
+        state: 5
+      })
+      .expect(200);
+    assert(orderResult.body.code === 200);
   });
+
   it('Action: markOrder', async () => {
     // 标记发货
     let result = await request
@@ -156,10 +264,10 @@ describe('Controller: Order', () => {
       .put(`/api/auth/order/5ae56c3e59551115b3d3a177`)
       .set({ Authorization: 'Bearer ' + user.body.token })
       .send({
-	state: 5
+        state: 5
       })
-      .expect(200)
-    assert(result.body.code === 200)
+      .expect(200);
+    assert(result.body.code === 200);
 
     // 标记发货没有快递单号，标记失败
     result = await request

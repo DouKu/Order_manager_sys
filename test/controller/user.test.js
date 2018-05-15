@@ -7,8 +7,8 @@ import Recommend from '../../api/models/Recommend';
 import { toObjectId } from '../../api/service/toObjectId';
 import UserMessage from '../../api/models/UserMessage';
 import Summary from '../../api/models/Summary';
-import MSummary from '../../api/models/Msummary'
-import YSummary from '../../api/models/Ysummary'
+import MSummary from '../../api/models/Msummary';
+import YSummary from '../../api/models/Ysummary';
 
 describe('Controller: user', () => {
   let user = null;
@@ -40,16 +40,15 @@ describe('Controller: user', () => {
       .expect(200);
     const newUser = await User.findOne({ realName: newMessage });
     const newRec = await Recommend.findOne({ toUser: toObjectId(newUser.id) });
-    const summary = await Summary.findOne({ user: newUser.id })
-    const msummary = await MSummary.findOne({ user: newUser.id })
-    const ysummary = await YSummary.findOne({ user: newUser.id })
+    const summary = await Summary.findOne({ user: newUser.id });
+    const msummary = await MSummary.findOne({ user: newUser.id });
+    const ysummary = await YSummary.findOne({ user: newUser.id });
     assert(summary !== null);
     assert(msummary !== null);
     assert(ysummary !== null);
     assert(newUser !== null);
     assert(result.body.code === 200);
     assert(newRec.fromUser.toString() === manager.id);
-
 
     // 注册失败
     result = await request
