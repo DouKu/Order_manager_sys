@@ -137,6 +137,7 @@ describe('Controller: Order', () => {
     assert(result.body.code === 200);
     assert(newOrder.address === address.address);
     assert(afterMess > beforeMess);
+
   });
   it('Action: markOrder', async () => {
     // 标记发货
@@ -150,6 +151,15 @@ describe('Controller: Order', () => {
       .expect(200);
 
     assert(result.body.data.state === 4);
+    // 标记确认订单生成summary
+    result = await request
+      .put(`/api/auth/order/5ae56c3e59551115b3d3a177`)
+      .set({ Authorization: 'Bearer ' + user.body.token })
+      .send({
+	state: 5
+      })
+      .expect(200)
+    assert(result.body.code === 200)
 
     // 标记发货没有快递单号，标记失败
     result = await request
