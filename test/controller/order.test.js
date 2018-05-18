@@ -175,8 +175,9 @@ describe('Controller: Order', () => {
 
     // 用户信息
     let orderUser = await User.findOne({ phoneNumber: '14772464747' });
+    console.log(orderUser)
     // 升级申请信息
-    const orderUserLevel = await LevelUp.findOne({ user: orderUser.id });
+    const orderUserLevel = await LevelUp.findOne({ applyUser: orderUser.id });
     // 管理员批准激活
     orderResult = await request
       .put('/api/mana/level/' + orderUserLevel.id)
@@ -188,7 +189,7 @@ describe('Controller: Order', () => {
 
     // 检测用户上级是否正确
     orderUser = await User.findOne({ phoneNumber: '14772464747' });
-    assert(orderUser.managerId.toString() === user2.id.toString());
+    assert(orderUser.managerId.toString() === '5ae0583e88c08266d47c4010')
     // 下单
     await request
       .post('/api/auth/order')
@@ -206,12 +207,6 @@ describe('Controller: Order', () => {
             'price': 26,
             'picture': 'http://oqzgtjqen.bkt.clouddn.com/1066973925.jpg',
             'num': 2
-          },
-          {
-            'name': 'test2',
-            'price': 36,
-            'picture': 'http://oqzgtjqen.bkt.clouddn.com/1066973925.jpg',
-            'num': 2
           }
         ],
         screenshots: 'lalalalla',
@@ -224,6 +219,16 @@ describe('Controller: Order', () => {
 
     let newOrder2 = await Order.findOne({ fromUser: orderUser.id });
     assert(newOrder2 !== null);
+    // 接单
+    orderResult = await request
+	.put(`/api/auth/order/${newOrder2.id}`)
+	.set({ Authorization: 'Bearer ' + user2.body.token })
+	.send({
+		state: 2
+	})
+	.expect(200)
+
+    assert(orderResult.body.data.state === 2)
     // 发货
     orderResult = await request
       .put(`/api/auth/order/${newOrder2.id}`)
@@ -234,7 +239,7 @@ describe('Controller: Order', () => {
       })
       .expect(200);
 
-    assert(result.body.data.state === 4);
+    assert(orderResult.body.data.state === 4);
 
     // 确认订单
     orderResult = await request
@@ -344,7 +349,7 @@ describe('Controller: Order', () => {
         sort: {}
       });
 
-    assert(result.body.data.length === 2);
+    assert(result.body.data.length >= 2);
 
     result = await request
       .post('/api/mana/order/list')
