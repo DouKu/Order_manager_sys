@@ -96,7 +96,7 @@ describe('initDb', () => {
     await daySummary();
     let summNum = await Summary.count({});
     let userNum = await User.count({});
-    assert(summNum === userNum * 2);
+    assert(summNum >= userNum * 2);
 
     // 再生成一次都会跳过
     await daySummary();
@@ -106,7 +106,7 @@ describe('initDb', () => {
     // 月度统计
     await monthSummary();
     summNum = await MSummary.count({});
-    assert(summNum === userNum * 2);
+    assert(summNum >= userNum * 2);
     // 再生成一次会跳过
     await monthSummary();
     newSummNum = await MSummary.count({});
@@ -115,7 +115,7 @@ describe('initDb', () => {
     // 年度统计
     await yearSummary();
     summNum = await YSummary.count({});
-    assert(summNum === userNum * 2);
+    assert(summNum >= userNum * 2);
     // 再生成一次会跳过
     await yearSummary();
     newSummNum = await YSummary.count({});

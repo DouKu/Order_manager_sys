@@ -65,6 +65,7 @@ UserSchema.pre('save', async function (next) {
     const salt = await bcrypt.genSalt(saltRound);
     const hash = await bcrypt.hash(this.password, salt);
     user.password = hash;
+    user.qrcode = nconf.get('app').qrcode + user.id;
     return next();
   } catch (err) {
     return next(err);

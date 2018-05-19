@@ -175,7 +175,6 @@ describe('Controller: Order', () => {
 
     // 用户信息
     let orderUser = await User.findOne({ phoneNumber: '14772464747' });
-    console.log(orderUser)
     // 升级申请信息
     const orderUserLevel = await LevelUp.findOne({ applyUser: orderUser.id });
     // 管理员批准激活
@@ -189,7 +188,7 @@ describe('Controller: Order', () => {
 
     // 检测用户上级是否正确
     orderUser = await User.findOne({ phoneNumber: '14772464747' });
-    assert(orderUser.managerId.toString() === '5ae0583e88c08266d47c4010')
+    assert(orderUser.managerId.toString() === '5ae0583e88c08266d47c4010');
     // 下单
     await request
       .post('/api/auth/order')
@@ -221,14 +220,14 @@ describe('Controller: Order', () => {
     assert(newOrder2 !== null);
     // 接单
     orderResult = await request
-	.put(`/api/auth/order/${newOrder2.id}`)
-	.set({ Authorization: 'Bearer ' + user2.body.token })
-	.send({
-		state: 2
-	})
-	.expect(200)
+      .put(`/api/auth/order/${newOrder2.id}`)
+      .set({ Authorization: 'Bearer ' + user2.body.token })
+      .send({
+        state: 2
+      })
+      .expect(200);
 
-    assert(orderResult.body.data.state === 2)
+    assert(orderResult.body.data.state === 2);
     // 发货
     orderResult = await request
       .put(`/api/auth/order/${newOrder2.id}`)

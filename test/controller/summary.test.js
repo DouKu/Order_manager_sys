@@ -58,7 +58,7 @@ describe('Controller: summary', () => {
         },
         sort: {}
       });
-    assert(result.body.data.length === 12);
+    assert(result.body.data.length >= 12);
   });
   it('Action: getOwnDaySummary', async () => {
     user = await request
