@@ -23,6 +23,7 @@ const UserSchema = new Schema({
   avatar: { type: String, default: nconf.get('app').avatar }, // 头像
   sign: { type: String }, // 个性签名
   qrcode: { type: String }, // 二维码
+  authorizationCode: { type: String }, // 授权码
   managerId: { type: ObjectId, ref: 'User' }, // 上级id
   recommendId: { type: ObjectId, ref: 'User' }, // 推荐人id
   isManager: { type: Boolean, default: false }, // 是否为管理员

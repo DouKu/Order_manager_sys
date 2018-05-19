@@ -127,6 +127,8 @@ const register = async ctx => {
 
   // 获取过期时间配置
   const sysConfig = await Config.findOne({});
+  let userNum = await User.count({});
+  userNum = 'M80' + userNum.toString();
 
   // 生成用户信息
   const user = new User({
@@ -134,6 +136,7 @@ const register = async ctx => {
     password: body.password,
     realName: body.realName,
     idCard: body.idCard,
+    authorizationCode: userNum,
     recommendId: toObjectId(body.recommendId),
     expiredAt: moment().add(sysConfig.expiredMonths, 'months').format()
   });
