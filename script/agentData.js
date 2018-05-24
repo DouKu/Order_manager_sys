@@ -1,8 +1,8 @@
 export default [
   {
     level: 1,
-    tag: '预留',
-    des: '预留'
+    tag: '超级管理员',
+    des: '超级管理员'
   }, {
     level: 2,
     tag: '企业合伙人',
