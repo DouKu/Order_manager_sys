@@ -22,7 +22,8 @@ const orderIm = (user, fontState, state, order) => {
           fromUser: order.toUser,
           toUser: order.fromUser,
           title: '上级拒绝取消订单',
-          message: `订单号:${order.id}，上级拒绝了该订单的取消请求，并且该订单已被上级发货`
+          message: `订单号:${order.id}，上级拒绝了该订单的取消请求，
+            并且该订单已被上级发货。快递单号为:${order.trackingNumber}。`
         };
       }
       case 7: {
@@ -74,7 +75,7 @@ const orderIm = (user, fontState, state, order) => {
           fromUser: order.toUser,
           toUser: order.fromUser,
           title: '订单已发货',
-          message: `订单号:${order.id}，的相关商品已发货请留意物流信息`
+          message: `订单号:${order.id}，的相关商品已发货请留意物流信息。快递单号为:${order.trackingNumber}。`
         };
       }
       case 5: {

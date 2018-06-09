@@ -1,6 +1,8 @@
 'use strict';
 import _ from 'lodash';
 import moment from 'moment';
+import bcrypt from 'bcrypt';
+import nconf from 'nconf';
 import User from '../models/User';
 import Recommend from '../models/Recommend';
 import Agent from '../models/Agent';
@@ -15,6 +17,7 @@ import { signToken } from '../service/base';
 import { toObjectId } from '../service/toObjectId';
 import { addMessage } from '../service/message';
 import { sendLevelUpMess } from '../service/levelUp';
+import Order from '../models/Order';
 
 // 登录
 const login = async ctx => {
@@ -46,12 +49,14 @@ const login = async ctx => {
       ctx.throw(403, '您无权限登录该系统');
     }
   }
+  const undeelOrdersNum = await Order.count({ toUser: user.id, state: 1 });
   const token = signToken(user);
   ctx.body = {
     code: 200,
     msg: '登录成功!',
     token: token,
-    isActive: user.isActive
+    isActive: user.isActive,
+    undeelOrdersNum
   };
 };
 
@@ -140,6 +145,7 @@ const register = async ctx => {
     recommendId: toObjectId(body.recommendId),
     expiredAt: moment().add(sysConfig.expiredMonths, 'months').format()
   });
+  console.log(user);
   await user.save();
 
   // 生成用户消息表
@@ -186,14 +192,51 @@ const register = async ctx => {
   };
 };
 
+const changePass = async ctx => {
+  ctx.verifyParams({
+    phoneNumber: 'string',
+    code: 'string',
+    password: 'string'
+  });
+  const body = ctx.request.body;
+  // 验证码校验
+  const now = Date.now();
+  const before30min = moment().subtract(30, 'minutes').format();
+  const vCodeCheck = await VCode.findOne({
+    phone: body.phoneNumber,
+    code: body.code,
+    use: true
+  })
+    .where('createAt').gte(before30min).lte(now);
+
+  if (vCodeCheck === null) {
+    ctx.throw(400, '验证码校验错误！');
+  }
+  const salt = await bcrypt.genSalt(nconf.get('saltRound'));
+  body.password = await bcrypt.hash(body.password, salt);
+  await User.findOneAndUpdate(
+    { phoneNumber: body.phoneNumber },
+    { password: body.password }
+  );
+  ctx.body = {
+    code: 200,
+    msg: '修改密码成功！'
+  };
+};
+
 const changePersionMess = async ctx => {
   ctx.verifyParams({
     nickname: { type: 'string', required: false },
     avatar: { type: 'string', required: false },
-    sign: { type: 'string', required: false }
+    sign: { type: 'string', required: false },
+    password: { type: 'string', required: false }
   });
   const userId = ctx.params.userId;
   const body = ctx.request.body;
+  if (body.password) {
+    const salt = await bcrypt.genSalt(nconf.get('saltRound'));
+    body.password = await bcrypt.hash(body.password, salt);
+  }
   await User.findByIdAndUpdate(userId, body);
   ctx.body = {
     code: 200,
@@ -256,9 +299,14 @@ const getUserInfo = async ctx => {
   if (manager) {
     result.manager = manager.realName;
   }
+  const undeelOrdersNum = await Order.count({
+    toUser: ctx.state.userMess.id,
+    state: 1
+  });
   ctx.body = {
     code: 200,
-    data: result
+    data: result,
+    undeelOrdersNum
   };
 };
 
@@ -680,6 +728,7 @@ export {
   login,
   phoneLogin,
   register,
+  changePass,
   changePersionMess,
   changeManager,
   activeAccount,

@@ -3,6 +3,7 @@ import {
   login,
   phoneLogin,
   register,
+  changePass,
   changePersionMess,
   changeManager,
   activeAccount,
@@ -25,6 +26,8 @@ module.exports = (router, authRouter, commonRouter, managerRouter) => {
   commonRouter.post('/plogin', phoneLogin);
   // 注册
   commonRouter.post('/register', register);
+  // 修改密码
+  commonRouter.post('/user/changePass', changePass);
   // 修改个人信息
   authRouter.put('/user/:userId', changePersionMess);
   // 激活账号

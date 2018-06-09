@@ -4,7 +4,6 @@ import crypto from 'crypto';
 import bcrypt from 'bcrypt';
 import nconf from 'nconf';
 const ObjectId = Schema.Types.ObjectId;
-const saltRound = 10;
 
 // 用户表
 const UserSchema = new Schema({
@@ -63,7 +62,7 @@ UserSchema.pre('save', async function (next) {
   try {
     const user = this;
     if (!user.isModified('password')) return next();
-    const salt = await bcrypt.genSalt(saltRound);
+    const salt = await bcrypt.genSalt(nconf.get('saltRound'));
     const hash = await bcrypt.hash(this.password, salt);
     user.password = hash;
     user.qrcode = nconf.get('app').qrcode + user.id;

@@ -76,17 +76,39 @@ describe('Controller: user', () => {
     assert(result.body.code === 200);
   });
   it('Action: changePersionMess', async () => {
+    let user1 = await User.findById('5ae0583e88c08266d47c4009');
     let result = await request
       .put('/api/auth/user/5ae0583e88c08266d47c4009')
       .set({ Authorization: 'Bearer ' + user.body.token })
       .send({
         nickname: '超级管理员',
         avatar: 'lasdkfjsldkfj',
-        sign: '我Tm是管理员噢'
+        sign: '我Tm是管理员噢',
+        password: '987654321'
       })
       .expect(200);
 
+    let user2 = await User.findById('5ae0583e88c08266d47c4009');
+    assert(user2.password !== user1.password);
     assert(result.body.code === 200);
+
+    result = await request
+      .post('/api/v1/login')
+      .send({
+        phoneNumber: '123456789',
+        password: '987654321',
+        target: 1
+      })
+      .expect(200);
+    assert(result.body.token !== null);
+
+    result = await request
+      .put('/api/auth/user/5ae0583e88c08266d47c4009')
+      .set({ Authorization: 'Bearer ' + user.body.token })
+      .send({
+        password: '123456789'
+      })
+      .expect(200);
   });
   it('Action: activeAccount', async () => {
     let register = await request

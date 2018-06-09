@@ -122,7 +122,8 @@ const addOrder = async ctx => {
     sumPrice += good.price * good.num;
   }
   // 保留2位小数
-  sumPrice.toFixed(2);
+  sumPrice = sumPrice.toFixed(2);
+  sumPrice = Number(sumPrice);
   const newOrder = new Order({
     fromUser: ctx.state.userMess.id,
     toUser: ctx.state.userMess.managerId,
@@ -133,7 +134,8 @@ const addOrder = async ctx => {
     address: body.address,
     receivePeople: body.receivePeople,
     postalCode: body.postalCode,
-    receivePhone: body.receivePhone
+    receivePhone: body.receivePhone,
+    createAt: Date.now()
   });
   await newOrder.save();
   // 添加消息
@@ -174,9 +176,11 @@ const markOrder = async ctx => {
   if (body.state === 5) {
     await addSummary(orderMessage);
   }
+  const undeelOrdersNum = await Order.count({ toUser: ctx.state.userMess.id, state: 1 });
   ctx.body = {
     code: 200,
-    data: orderMessage
+    data: orderMessage,
+    undeelOrdersNum
   };
 };
 
@@ -249,7 +253,11 @@ const listOrder = async ctx => {
         goods: o.goods,
         state: o.state,
         sumPrice: o.sumPrice,
-        screenshots: o.screenshots
+        screenshots: o.screenshots,
+        address: o.address,
+        receivePeople: o.receivePeople,
+        postalCode: o.postalCode,
+        receivePhone: o.receivePhone
       };
     })
     .value();
